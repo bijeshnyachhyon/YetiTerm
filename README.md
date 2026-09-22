@@ -56,8 +56,8 @@
 - **Application Name**: YetiTerm
 - **Version**: 1.0.0
 - **Developed by**: Bijesh Lal Nyachhyon
-- **Department**: IT Department
-- **Organization**: DataHub Pvt. Ltd.
+- **Email**: bijesh.nyachhyon@gmail.com
+- **Country**: Nepal
 - **Copyright**: © 2026 DataHub Pvt. Ltd. All rights reserved.
 
 ---
@@ -72,7 +72,7 @@
   - **Content Security Policy (CSP)**: Hardened `index.html` with restrictive directives (`object-src 'none'; base-uri 'self'; form-action 'self';`).
   - **App Lock Credential Gate**: Sealed credential decryption IPC handlers (`credentials:decrypt`) whenever App Lock is active, preventing locked renderers from reading plaintext secrets.
   - **Path Traversal & Injection Defense**: Hardened file system bridges (`localFsBridge` and `openPath`) against null-byte poisoning and untrusted input paths.
-- **Attribution**: Added official developer and organization attribution in Settings > Application (*Developed by Bijesh Lal Nyachhyon, IT Department, DataHub Pvt. Ltd.*).
+- **Attribution**: Added official developer attribution in Settings > Application (*Developed by Bijesh Lal Nyachhyon, Nepal*).
 - **Settings Optimization**:
   - Streamlined settings interface by removing unnecessary cloud sync, system menus, and extraneous capability cards.
   - Standardized application icon usage to the official YetiTerm logo.

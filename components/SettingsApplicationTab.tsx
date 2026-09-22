@@ -22,7 +22,7 @@ interface SettingsApplicationTabProps {
 }
 
 export default function SettingsApplicationTab(_props: SettingsApplicationTabProps) {
-  const { getApplicationInfo } = useApplicationBackend();
+  const { getApplicationInfo, openExternal } = useApplicationBackend();
   const [appInfo, setAppInfo] = useState<AppInfo>({ name: "YetiTerm", version: "1.0.0" });
 
   useEffect(() => {
@@ -72,11 +72,11 @@ export default function SettingsApplicationTab(_props: SettingsApplicationTabPro
           </div>
         </SettingsAnchor>
 
-        {/* Developer & Organization Attribution */}
+        {/* Developer Attribution */}
         <div className="rounded-xl border border-border/60 bg-card p-6 shadow-sm space-y-4">
           <h3 className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
             <User size={16} className="text-primary" />
-            Developer & Organization
+            Developer Information
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40">
@@ -84,13 +84,24 @@ export default function SettingsApplicationTab(_props: SettingsApplicationTabPro
               <div className="text-sm font-semibold text-foreground mt-0.5">Bijesh Lal Nyachhyon</div>
             </div>
             <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40">
-              <div className="text-xs font-medium text-muted-foreground">Department</div>
-              <div className="text-sm font-semibold text-foreground mt-0.5">IT Department</div>
+              <div className="text-xs font-medium text-muted-foreground">Email</div>
+              <div className="text-sm font-semibold text-foreground mt-0.5">
+                <a
+                  href="mailto:bijesh.nyachhyon@gmail.com"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void openExternal?.("mailto:bijesh.nyachhyon@gmail.com");
+                  }}
+                  className="hover:underline text-foreground hover:text-primary transition-colors cursor-pointer select-text"
+                >
+                  bijesh.nyachhyon@gmail.com
+                </a>
+              </div>
             </div>
             <div className="p-3.5 rounded-lg bg-muted/40 border border-border/40 sm:col-span-2">
-              <div className="text-xs font-medium text-muted-foreground">Company / Organization</div>
+              <div className="text-xs font-medium text-muted-foreground">Country</div>
               <div className="text-sm font-semibold text-foreground mt-0.5">
-                DataHub Pvt. Ltd.
+                Nepal
               </div>
             </div>
           </div>
