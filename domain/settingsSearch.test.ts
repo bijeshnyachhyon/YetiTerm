@@ -6,7 +6,8 @@ import { filterSettingsSearchCatalog } from "./settingsSearch.ts";
 import { SETTINGS_SEARCH_CATALOG } from "./settingsSearchCatalog.ts";
 
 const EN: Record<string, string> = {
-  "settings.tab.application": "Application",
+  "settings.tab.about": "About",
+  "settings.tab.application": "About",
   "settings.tab.appearance": "Appearance",
   "settings.tab.terminal": "Terminal",
   "settings.tab.shortcuts": "Shortcuts",

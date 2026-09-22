@@ -48,7 +48,7 @@ export default function SettingsApplicationTab(_props: SettingsApplicationTabPro
   }, [getApplicationInfo]);
 
   return (
-    <SettingsTabContent value="application">
+    <SettingsTabContent value="about">
       <div className="space-y-6">
         {/* Application Overview & Identity */}
         <SettingsAnchor anchorId="application-about">

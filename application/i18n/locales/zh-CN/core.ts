@@ -96,7 +96,8 @@ export const zhCNCoreMessages: Messages = {
 
   // Settings shell
   'settings.title': '设置',
-  'settings.tab.application': '应用',
+  'settings.tab.about': '关于',
+  'settings.tab.application': '关于',
   'settings.tab.appearance': '外观',
   'settings.tab.terminal': '终端',
   'settings.tab.shortcuts': '快捷键',

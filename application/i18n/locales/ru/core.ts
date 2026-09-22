@@ -111,7 +111,8 @@ export const ruCoreMessages: Messages = {
 
   // Settings shell
   'settings.title': 'Настройки',
-  'settings.tab.application': 'Приложение',
+  'settings.tab.about': 'О программе',
+  'settings.tab.application': 'О программе',
   'settings.tab.appearance': 'Внешний вид',
   'settings.tab.terminal': 'Терминал',
   'settings.tab.shortcuts': 'Горячие клавиши',

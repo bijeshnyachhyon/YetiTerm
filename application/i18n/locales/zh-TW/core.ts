@@ -98,7 +98,8 @@ export const zhTWCoreMessages: Messages = {
 
   // Settings shell
   'settings.title': '設定',
-  'settings.tab.application': '應用程式',
+  'settings.tab.about': '關於',
+  'settings.tab.application': '關於',
   'settings.tab.appearance': '外觀',
   'settings.tab.terminal': '終端',
   'settings.tab.shortcuts': '快速鍵',

@@ -2,7 +2,7 @@
  * Settings Page - Standalone settings window content
  * This component is rendered in a separate Electron window
  */
-import { AppWindow, FileType, HardDrive, Keyboard, Palette, Puzzle, Sparkles, TerminalSquare, X } from "lucide-react";
+import { FileType, HardDrive, Info, Keyboard, Palette, Puzzle, Sparkles, TerminalSquare, X } from "lucide-react";
 import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useAISettingsState } from "../application/state/useAISettingsState";
 import { useAvailableFonts } from "../application/state/fontStore";
@@ -325,8 +325,8 @@ const SettingsPageContent: React.FC<{ settings: SettingsState; appLock?: AppLock
         // here so a click from the Settings window isn't a silent no-op (#1215).
         onNeedsSave: () => toast.warning(t('update.needsSave.message'), t('update.needsSave.title')),
     });
-    const [activeTab, setActiveTab] = useState("application");
-    const [mountedTabs, setMountedTabs] = useState(() => new Set(["application"]));
+    const [activeTab, setActiveTab] = useState("appearance");
+    const [mountedTabs, setMountedTabs] = useState(() => new Set(["appearance"]));
     const { available: pluginRuntimeAvailable } = usePluginContributions();
     const closeTabKeyStr = useMemo(() => {
         if (settings.hotkeyScheme === "disabled") return null;
@@ -385,8 +385,9 @@ const SettingsPageContent: React.FC<{ settings: SettingsState; appLock?: AppLock
 
     useEffect(() => {
         if (!request) return;
-        if (activeTab !== request.tab) {
-            setActiveTab(request.tab);
+        const targetTab = request.tab === "application" ? "about" : request.tab;
+        if (activeTab !== targetTab) {
+            setActiveTab(targetTab);
             return;
         }
         // Nested tabs (AI / Sync) read `request` to switch sub-tabs. Keep it until
@@ -453,11 +454,11 @@ const SettingsPageContent: React.FC<{ settings: SettingsState; appLock?: AppLock
                     <SettingsSearchControl includePlugins={pluginRuntimeAvailable} />
                     <TabsList className="flex flex-col h-auto bg-transparent gap-1 p-0 justify-start">
                         <TabsTrigger
-                            value="application"
+                            value="appearance"
                             className={settingsTabTriggerClassName}
                         >
-                            <AppWindow size={14} className={settingsTabIconClassName} />
-                            <span className={settingsTabLabelClassName}>{t("settings.tab.application")}</span>
+                            <Palette size={14} className={settingsTabIconClassName} />
+                            <span className={settingsTabLabelClassName}>{t("settings.tab.appearance")}</span>
                         </TabsTrigger>
                         {pluginRuntimeAvailable && (
                             <TabsTrigger value="plugins" className={settingsTabTriggerClassName}>
@@ -465,13 +466,6 @@ const SettingsPageContent: React.FC<{ settings: SettingsState; appLock?: AppLock
                                 <span className={settingsTabLabelClassName}>{t("settings.tab.plugins")}</span>
                             </TabsTrigger>
                         )}
-                        <TabsTrigger
-                            value="appearance"
-                            className={settingsTabTriggerClassName}
-                        >
-                            <Palette size={14} className={settingsTabIconClassName} />
-                            <span className={settingsTabLabelClassName}>{t("settings.tab.appearance")}</span>
-                        </TabsTrigger>
                         <TabsTrigger
                             value="terminal"
                             className={settingsTabTriggerClassName}
@@ -507,22 +501,17 @@ const SettingsPageContent: React.FC<{ settings: SettingsState; appLock?: AppLock
                             <HardDrive size={14} className={settingsTabIconClassName} />
                             <span className={settingsTabLabelClassName}>{t("settings.tab.system")}</span>
                         </TabsTrigger>
+                        <TabsTrigger
+                            value="about"
+                            className={settingsTabTriggerClassName}
+                        >
+                            <Info size={14} className={settingsTabIconClassName} />
+                            <span className={settingsTabLabelClassName}>{t("settings.tab.about")}</span>
+                        </TabsTrigger>
                     </TabsList>
                 </div>
 
                 <div className="flex-1 h-full flex flex-col min-h-0 bg-muted/10">
-                    {mountedTabs.has("application") && (
-                        <SettingsLazyTab value="application">
-                            <LazySettingsApplicationTab
-                                updateState={updateState}
-                                checkNow={checkNow}
-                                openReleasePage={openReleasePage}
-                                installUpdate={installUpdate}
-                                startDownload={startDownload}
-                                isUpdateDemoMode={isUpdateDemoMode}
-                            />
-                        </SettingsLazyTab>
-                    )}
 
                     {mountedTabs.has("appearance") && (
                         <SettingsLazyTab value="appearance">
@@ -674,6 +663,18 @@ const SettingsPageContent: React.FC<{ settings: SettingsState; appLock?: AppLock
                                 hotkeyRegistrationError={settings.hotkeyRegistrationError}
                                 globalHotkeyEnabled={settings.globalHotkeyEnabled}
                                 setGlobalHotkeyEnabled={settings.setGlobalHotkeyEnabled}
+                            />
+                        </SettingsLazyTab>
+                    )}
+                    {(mountedTabs.has("about") || mountedTabs.has("application")) && (
+                        <SettingsLazyTab value="about">
+                            <LazySettingsApplicationTab
+                                updateState={updateState}
+                                checkNow={checkNow}
+                                openReleasePage={openReleasePage}
+                                installUpdate={installUpdate}
+                                startDownload={startDownload}
+                                isUpdateDemoMode={isUpdateDemoMode}
                             />
                         </SettingsLazyTab>
                     )}

@@ -4,6 +4,7 @@
  */
 
 export const SETTINGS_TAB_IDS = [
+  "about",
   "application",
   "appearance",
   "terminal",
@@ -50,12 +51,12 @@ export type SettingsSearchEntry = {
 };
 
 export const SETTINGS_SEARCH_CATALOG: readonly SettingsSearchEntry[] = [
-  // Application
+  // About / Application
   {
     id: "application-about",
-    tab: "application",
-    labelKey: "settings.tab.application",
-    keywords: ["about", "version"],
+    tab: "about",
+    labelKey: "settings.tab.about",
+    keywords: ["about", "version", "application"],
   },
 
   // Appearance

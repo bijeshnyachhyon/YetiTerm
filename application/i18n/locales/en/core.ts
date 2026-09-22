@@ -112,7 +112,8 @@ export const enCoreMessages: Messages = {
 
   // Settings shell
   'settings.title': 'Settings',
-  'settings.tab.application': 'Application',
+  'settings.tab.about': 'About',
+  'settings.tab.application': 'About',
   'settings.tab.appearance': 'Appearance',
   'settings.tab.terminal': 'Terminal',
   'settings.tab.shortcuts': 'Shortcuts',

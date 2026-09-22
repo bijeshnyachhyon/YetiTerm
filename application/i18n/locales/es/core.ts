@@ -86,7 +86,8 @@ export const esCoreMessages: Messages = {
 
   // Settings shell
   'settings.title': 'Configuración',
-  'settings.tab.application': 'Aplicación',
+  'settings.tab.about': 'Acerca de',
+  'settings.tab.application': 'Acerca de',
   'settings.tab.appearance': 'Apariencia',
   'settings.tab.terminal': 'Terminal',
   'settings.tab.shortcuts': 'Atajos',
