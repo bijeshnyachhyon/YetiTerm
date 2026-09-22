@@ -276,6 +276,7 @@ module.exports = {
         shortcutName: 'YetiTerm'
     },
     linux: {
+        maintainer: 'Bijesh Lal Nyachhyon <bijesh.nyachhyon@gmail.com>',
         // Linux .deb/.rpm/AppImage icons come from build/icons/* (see
         // scripts/generate-linux-icons.sh). Point at the icons directory
         // under buildResources — electron-builder still falls back to the

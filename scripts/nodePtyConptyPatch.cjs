@@ -33,6 +33,17 @@ function rebuildPatchedNodePty({
     throw new Error(`[nodePtyConptyPatch] Unsupported Windows architecture: ${String(arch)}`);
   }
 
+  if (process.platform !== "win32" && run === execFileSync) {
+    const prebuildDir = path.join(projectDir, "node_modules", "node-pty", "prebuilds", `win32-${targetArch}`);
+    const releaseDir = path.join(projectDir, "node_modules", "node-pty", "build", "Release");
+    fs.mkdirSync(path.join(releaseDir, "conpty"), { recursive: true });
+    fs.copyFileSync(path.join(prebuildDir, "conpty.node"), path.join(releaseDir, "conpty.node"));
+    fs.copyFileSync(path.join(prebuildDir, "conpty", "conpty.dll"), path.join(releaseDir, "conpty", "conpty.dll"));
+    fs.copyFileSync(path.join(prebuildDir, "conpty", "OpenConsole.exe"), path.join(releaseDir, "conpty", "OpenConsole.exe"));
+    logger.log(`[nodePtyConptyPatch] Using prebuilt node-pty for Windows ${targetArch} on non-Windows host`);
+    return true;
+  }
+
   const rebuildCli = path.join(projectDir, "node_modules", "@electron", "rebuild", "lib", "cli.js");
   logger.log(`[nodePtyConptyPatch] Rebuilding patched node-pty for Windows ${targetArch}`);
   run(process.execPath, [

@@ -47,3 +47,10 @@ lerna-debug.log*
 # Vite / Cache
 .vite/
 .eslintcache
+
+# Helper binaries & fetched resources
+electron/bridges/windowsHelloHelper/build/
+resources/et/linux-*/
+resources/et/win32-*/
+resources/mosh/linux-*/
+resources/mosh/win32-*/

@@ -9,7 +9,7 @@
     "packages/*",
     "examples/plugins/*"
   ],
-  "author": "Bijesh Lal Nyachhyon",
+  "author": "Bijesh Lal Nyachhyon <bijesh.nyachhyon@gmail.com>",
   "license": "GPL-3.0-or-later",
   "engines": {
     "node": ">=22"

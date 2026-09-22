@@ -99,6 +99,12 @@ function buildWindowsHelloHelper({
   const outputPath = pathApi.join(outputDir, "NetcattyWindowsHello.exe");
   mkdir(outputDir, { recursive: true });
 
+  const hostOutputPath = path.join(projectDir, "electron", "bridges", "windowsHelloHelper", "build", targetArch, "NetcattyWindowsHello.exe");
+  const expectedMachine = getExpectedPeMachine(targetArch);
+  if (existsSync(hostOutputPath) && readMachine(hostOutputPath) === expectedMachine) {
+    return { skipped: false, outputPath };
+  }
+
   const compiler = findCompiler(env);
   const machine = targetArch === "arm64" ? "ARM64" : "X64";
   const compilerArgs = [
@@ -150,7 +156,6 @@ function buildWindowsHelloHelper({
     return { skipped: true, reason: "compiler-unavailable" };
   }
 
-  const expectedMachine = getExpectedPeMachine(targetArch);
   const actualMachine = readMachine(outputPath);
   if (actualMachine !== expectedMachine) {
     logger.warn?.(`[windowsHelloHelper] Built helper machine ${actualMachine} does not match ${targetArch}`);
