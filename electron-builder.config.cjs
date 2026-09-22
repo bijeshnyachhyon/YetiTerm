@@ -7,6 +7,7 @@ const { etExtraResources } = require('./scripts/et-extra-resources.cjs');
 module.exports = {
     appId: 'com.datahub.yetiterm',
     productName: 'YetiTerm',
+    copyright: 'Copyright © 2026, Bijesh Lal Nyachhyon.',
     artifactName: '${productName}-${version}-${os}-${arch}.${ext}',
     protocols: [
         {

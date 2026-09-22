@@ -1308,6 +1308,7 @@ function buildAppMenu(Menu, app, isMac, language = currentLanguage, options = {}
       applicationName: "YetiTerm",
       applicationVersion: app.getVersion(),
       version: "",
+      copyright: "Copyright © 2026, Bijesh Lal Nyachhyon.",
     });
   }
   const template = [

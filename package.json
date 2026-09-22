@@ -9,7 +9,7 @@
     "packages/*",
     "examples/plugins/*"
   ],
-  "author": "DataHub Pvt. Ltd.",
+  "author": "Bijesh Lal Nyachhyon",
   "license": "GPL-3.0-or-later",
   "engines": {
     "node": ">=22"

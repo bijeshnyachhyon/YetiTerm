@@ -58,7 +58,7 @@
 - **Developed by**: Bijesh Lal Nyachhyon
 - **Email**: bijesh.nyachhyon@gmail.com
 - **Country**: Nepal
-- **Copyright**: © 2026 DataHub Pvt. Ltd. All rights reserved.
+- **Copyright**: Copyright © 2026, Bijesh Lal Nyachhyon.
 
 ---
 

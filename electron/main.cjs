@@ -1321,6 +1321,7 @@ if (!gotLock) {
         applicationName: "YetiTerm",
         applicationVersion: app.getVersion(),
         version: "",
+        copyright: "Copyright © 2026, Bijesh Lal Nyachhyon.",
       });
     }
     registerAppProtocol();
