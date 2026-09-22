@@ -13,15 +13,15 @@ export function buildMcpOnboardingPrompt(
 ): string {
   if (!launcherPath) {
     return [
-      "Please connect Netcatty to this session via MCP.",
-      "In the Netcatty desktop app, open Settings → AI → Tool Access, turn on External MCP,",
+      "Please connect YetiTerm to this session via MCP.",
+      "In the YetiTerm desktop app, open Settings → AI → Tool Access, turn on External MCP,",
       "then copy the generated prompt from the Tool Access section and run it here.",
-      "After that, list the netcatty-external MCP tools and call get_environment to verify the connection.",
+      "After that, list the yetiterm-external MCP tools and call get_environment to verify the connection.",
     ].join(" ");
   }
   const lines = [
-    "Please register Netcatty's MCP server in your MCP client configuration:",
-    `- Server name: netcatty-external`,
+    "Please register YetiTerm's MCP server in your MCP client configuration:",
+    `- Server name: yetiterm-external`,
     `- Transport: local stdio`,
     `- Command: ${launcherPath}`,
   ];
@@ -30,7 +30,7 @@ export function buildMcpOnboardingPrompt(
   }
   lines.push(
     "After registering, list the server's tools and call get_environment to verify the connection.",
-    "Keep the Netcatty desktop app running while you use these tools.",
+    "Keep the YetiTerm desktop app running while you use these tools.",
   );
   return lines.join("\n");
 }

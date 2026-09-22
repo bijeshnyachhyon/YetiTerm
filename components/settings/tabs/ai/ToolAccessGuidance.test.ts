@@ -5,7 +5,7 @@ import { buildMcpOnboardingPrompt } from "./ToolAccessGuidance";
 
 test("buildMcpOnboardingPrompt includes launcher and discovery env", () => {
   const prompt = buildMcpOnboardingPrompt("/opt/netcatty/launcher", "/tmp/discovery.json");
-  assert.match(prompt, /netcatty-external/);
+  assert.match(prompt, /yetiterm-external/);
   assert.match(prompt, /\/opt\/netcatty\/launcher/);
   assert.match(prompt, /NETCATTY_EXTERNAL_MCP_DISCOVERY_FILE=\/tmp\/discovery\.json/);
   assert.match(prompt, /get_environment/);

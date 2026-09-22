@@ -368,13 +368,21 @@ function mergeTerminalOutputMeta(previous, next) {
 }
 
 const SESSION_START_CHANNELS = new Set([
+  "yetiterm:start",
   "netcatty:start",
+  "yetiterm:local:start",
   "netcatty:local:start",
+  "yetiterm:telnet:start",
   "netcatty:telnet:start",
+  "yetiterm:mosh:start",
   "netcatty:mosh:start",
+  "yetiterm:et:start",
   "netcatty:et:start",
+  "yetiterm:serial:start",
   "netcatty:serial:start",
+  "yetiterm:local:reconnect",
   "netcatty:local:reconnect",
+  "yetiterm:external:start",
   "netcatty:external:start",
 ]);
 
@@ -1817,9 +1825,12 @@ function createTerminalWorkerManager(options = {}) {
         bootEpoch: normalizeBootEpoch(payload?.bootEpoch),
         webContentsId: optionsForRequest.webContentsId,
         opensOutputSession: channel === "netcatty:start"
+          || channel === "yetiterm:start"
           || channel === "netcatty:local:reconnect"
+          || channel === "yetiterm:local:reconnect"
           || channel === "netcatty:external:start"
-          || /^(?:netcatty:)(?:local|telnet|mosh|et|serial):start$/u.test(channel),
+          || channel === "yetiterm:external:start"
+          || /^(?:netcatty|yetiterm):(local|telnet|mosh|et|serial):start$/u.test(channel),
       });
     });
     let notifyClosedAfterPost = false;

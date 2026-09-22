@@ -12,13 +12,21 @@ const DEFAULT_SESSION_LIFECYCLE_TOMBSTONE_TTL_MS = 60_000;
 const DEFAULT_MAX_SESSION_LIFECYCLE_TOMBSTONES = 2_048;
 
 const SESSION_START_CHANNELS = new Set([
+  "yetiterm:start",
   "netcatty:start",
+  "yetiterm:local:start",
   "netcatty:local:start",
+  "yetiterm:telnet:start",
   "netcatty:telnet:start",
+  "yetiterm:mosh:start",
   "netcatty:mosh:start",
+  "yetiterm:et:start",
   "netcatty:et:start",
+  "yetiterm:serial:start",
   "netcatty:serial:start",
+  "yetiterm:local:reconnect",
   "netcatty:local:reconnect",
+  "yetiterm:external:start",
   "netcatty:external:start",
 ]);
 

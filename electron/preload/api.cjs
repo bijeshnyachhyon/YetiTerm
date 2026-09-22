@@ -3,8 +3,17 @@ const {
   hasPluginPipelineIngressMarker,
 } = require("./terminalDataBacklog.cjs");
 const { randomUUID } = require("node:crypto");
-const fs = require("node:fs");
 const { stageRendererFileToTemp } = require("./stageUploadFile.cjs");
+
+function sanitizeIpcErrorMessage(err) {
+  if (err instanceof Error) {
+    err.message = err.message
+      .replace(/^error invoking remote method '[^']+':\s*(?:error:\s*)?/i, "")
+      .replace(/netcatty/gi, (m) => (m === "NETCATTY" ? "YETITERM" : m === "netcatty" ? "yetiterm" : "YetiTerm"))
+      .trim();
+  }
+  return err;
+}
 
 function createPreloadApi(ctx) {
   const terminalDataBacklog = ctx.terminalDataBacklog || null;
@@ -289,39 +298,68 @@ function createPreloadApi(ctx) {
   },
   startSSHSession: async (options) => {
     markRequestedTerminalDataSessionOpen(options);
-    const result = await ipcRenderer.invoke("netcatty:start", options);
-    markTerminalDataSessionOpen(result?.sessionId);
-    return result.sessionId;
+    try {
+      const result = await ipcRenderer.invoke("yetiterm:start", options).catch(async (err) => {
+        if (err?.message?.includes("No handler registered for 'yetiterm:start'")) {
+          return ipcRenderer.invoke("netcatty:start", options);
+        }
+        throw err;
+      });
+      markTerminalDataSessionOpen(result?.sessionId);
+      return result.sessionId;
+    } catch (err) {
+      throw sanitizeIpcErrorMessage(err);
+    }
   },
   startTelnetSession: async (options) => {
     markRequestedTerminalDataSessionOpen(options);
-    const result = await ipcRenderer.invoke("netcatty:telnet:start", options);
-    markTerminalDataSessionOpen(result?.sessionId);
-    return result.sessionId;
+    try {
+      const result = await ipcRenderer.invoke("netcatty:telnet:start", options);
+      markTerminalDataSessionOpen(result?.sessionId);
+      return result.sessionId;
+    } catch (err) {
+      throw sanitizeIpcErrorMessage(err);
+    }
   },
   startMoshSession: async (options) => {
     markRequestedTerminalDataSessionOpen(options);
-    const result = await ipcRenderer.invoke("netcatty:mosh:start", options);
-    markTerminalDataSessionOpen(result?.sessionId);
-    return result.sessionId;
+    try {
+      const result = await ipcRenderer.invoke("netcatty:mosh:start", options);
+      markTerminalDataSessionOpen(result?.sessionId);
+      return result.sessionId;
+    } catch (err) {
+      throw sanitizeIpcErrorMessage(err);
+    }
   },
   startEtSession: async (options) => {
     markRequestedTerminalDataSessionOpen(options);
-    const result = await ipcRenderer.invoke("netcatty:et:start", options);
-    markTerminalDataSessionOpen(result?.sessionId);
-    return result.sessionId;
+    try {
+      const result = await ipcRenderer.invoke("netcatty:et:start", options);
+      markTerminalDataSessionOpen(result?.sessionId);
+      return result.sessionId;
+    } catch (err) {
+      throw sanitizeIpcErrorMessage(err);
+    }
   },
   startLocalSession: async (options) => {
     markRequestedTerminalDataSessionOpen(options);
-    const result = await ipcRenderer.invoke("netcatty:local:start", options || {});
-    markTerminalDataSessionOpen(result?.sessionId);
-    return result.sessionId;
+    try {
+      const result = await ipcRenderer.invoke("netcatty:local:start", options || {});
+      markTerminalDataSessionOpen(result?.sessionId);
+      return result.sessionId;
+    } catch (err) {
+      throw sanitizeIpcErrorMessage(err);
+    }
   },
   startSerialSession: async (options) => {
     markRequestedTerminalDataSessionOpen(options);
-    const result = await ipcRenderer.invoke("netcatty:serial:start", options);
-    markTerminalDataSessionOpen(result?.sessionId);
-    return result.sessionId;
+    try {
+      const result = await ipcRenderer.invoke("netcatty:serial:start", options);
+      markTerminalDataSessionOpen(result?.sessionId);
+      return result.sessionId;
+    } catch (err) {
+      throw sanitizeIpcErrorMessage(err);
+    }
   },
   listSerialPorts: async () => {
     return ipcRenderer.invoke("netcatty:serial:list");

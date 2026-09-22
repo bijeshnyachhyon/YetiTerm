@@ -10,8 +10,8 @@ import {
 
 test("remote clipboard image path is placed under the current directory", () => {
   assert.equal(
-    buildRemoteClipboardImagePath("/srv/app", "netcatty paste:1.png"),
-    "/srv/app/.netcatty-paste-images/netcatty_paste_1.png",
+    buildRemoteClipboardImagePath("/srv/app", "yetiterm paste:1.png"),
+    "/srv/app/.yetiterm-paste-images/yetiterm_paste_1.png",
   );
 });
 
@@ -24,8 +24,8 @@ test("remote clipboard image path is empty when cwd is unavailable", () => {
 
 test("remote paths are quoted for shell-safe insertion", () => {
   assert.equal(
-    quoteRemotePathForShell("/srv/app/.netcatty-paste-images/a b's.png"),
-    "'/srv/app/.netcatty-paste-images/a b'\\''s.png'",
+    quoteRemotePathForShell("/srv/app/.yetiterm-paste-images/a b's.png"),
+    "'/srv/app/.yetiterm-paste-images/a b'\\''s.png'",
   );
 });
 
@@ -83,14 +83,14 @@ test("remote clipboard image upload inserts the remote image path without broadc
 
   assert.deepEqual(result, {
     ok: true,
-    remotePath: "/home/alice/project/.netcatty-paste-images/shot_1.png",
-    pastedPath: "/home/alice/project/.netcatty-paste-images/shot_1.png",
+    remotePath: "/home/alice/project/.yetiterm-paste-images/shot_1.png",
+    pastedPath: "/home/alice/project/.yetiterm-paste-images/shot_1.png",
   });
   assert.deepEqual(transferPayloads, [
     {
       transferId: "transfer-1",
       sourcePath: "/tmp/netcatty/shot.png",
-      targetPath: "/home/alice/project/.netcatty-paste-images/shot_1.png",
+      targetPath: "/home/alice/project/.yetiterm-paste-images/shot_1.png",
       sourceType: "local",
       targetType: "sftp",
       targetSftpId: "sftp-1",
@@ -100,11 +100,11 @@ test("remote clipboard image upload inserts the remote image path without broadc
   assert.deepEqual(writes, [
     {
       sessionId: "session-1",
-      data: "/home/alice/project/.netcatty-paste-images/shot_1.png",
+      data: "/home/alice/project/.yetiterm-paste-images/shot_1.png",
       sensitive: true,
     },
   ]);
-  assert.deepEqual(scrolled, ["/home/alice/project/.netcatty-paste-images/shot_1.png"]);
+  assert.deepEqual(scrolled, ["/home/alice/project/.yetiterm-paste-images/shot_1.png"]);
   assert.deepEqual(broadcastData, []);
   assert.equal(focused, true);
   assert.equal(closedSftpId, "sftp-1");

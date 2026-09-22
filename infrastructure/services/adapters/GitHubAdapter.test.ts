@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { downloadGistRevision, downloadSyncGist } from './GitHubAdapter.ts';
+import { downloadGistRevision, downloadSyncGist, findSyncGist } from './GitHubAdapter.ts';
 import { SYNC_CONSTANTS } from '../../../domain/sync.ts';
 
 type FetchCall = {
@@ -244,3 +244,58 @@ test('downloadGistRevision also recovers truncated content via raw_url', async (
     restore();
   }
 });
+
+test('findSyncGist finds gists with either YetiTerm or legacy Netcatty description', async () => {
+  const { restore } = installFetchMock((url) => {
+    if (url.includes('/gists')) {
+      return new Response(
+        JSON.stringify([
+          {
+            id: 'legacy-gist',
+            description: SYNC_CONSTANTS.LEGACY_GIST_DESCRIPTION,
+            files: {
+              [SYNC_CONSTANTS.SYNC_FILE_NAME]: { filename: SYNC_CONSTANTS.SYNC_FILE_NAME },
+            },
+          },
+        ]),
+        { status: 200 },
+      );
+    }
+    return new Response('not found', { status: 404 });
+  });
+
+  try {
+    const gistId = await findSyncGist('token-xyz');
+    assert.equal(gistId, 'legacy-gist');
+  } finally {
+    restore();
+  }
+});
+
+test('findSyncGist finds gists with current YetiTerm description', async () => {
+  const { restore } = installFetchMock((url) => {
+    if (url.includes('/gists')) {
+      return new Response(
+        JSON.stringify([
+          {
+            id: 'yetiterm-gist',
+            description: SYNC_CONSTANTS.GIST_DESCRIPTION,
+            files: {
+              [SYNC_CONSTANTS.SYNC_FILE_NAME]: { filename: SYNC_CONSTANTS.SYNC_FILE_NAME },
+            },
+          },
+        ]),
+        { status: 200 },
+      );
+    }
+    return new Response('not found', { status: 404 });
+  });
+
+  try {
+    const gistId = await findSyncGist('token-xyz');
+    assert.equal(gistId, 'yetiterm-gist');
+  } finally {
+    restore();
+  }
+});
+

@@ -346,7 +346,8 @@ export const findSyncGist = async (
   const gists: GitHubGist[] = await response.json();
   
   const syncGist = gists.find(g => 
-    g.description === SYNC_CONSTANTS.GIST_DESCRIPTION &&
+    (g.description === SYNC_CONSTANTS.GIST_DESCRIPTION ||
+     g.description === SYNC_CONSTANTS.LEGACY_GIST_DESCRIPTION) &&
     g.files[SYNC_CONSTANTS.SYNC_FILE_NAME]
   );
 

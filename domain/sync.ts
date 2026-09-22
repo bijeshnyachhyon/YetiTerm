@@ -787,7 +787,8 @@ export const SYNC_CONSTANTS = {
   
   // Sync
   SYNC_FILE_NAME: 'netcatty-vault.json',
-  GIST_DESCRIPTION: 'Netcatty Encrypted Vault (DO NOT EDIT MANUALLY)',
+  GIST_DESCRIPTION: 'YetiTerm Encrypted Vault (DO NOT EDIT MANUALLY)',
+  LEGACY_GIST_DESCRIPTION: 'Netcatty Encrypted Vault (DO NOT EDIT MANUALLY)',
   
   // Auto-sync
   DEFAULT_AUTO_SYNC_INTERVAL: 5, // minutes
@@ -830,7 +831,7 @@ export const generateDeviceId = (): string => {
  */
 export const getDefaultDeviceName = (): string => {
   const platform = navigator.platform || 'Unknown';
-  const hostname = 'Netcatty';
+  const hostname = 'YetiTerm';
   return `${hostname} (${platform})`;
 };
 

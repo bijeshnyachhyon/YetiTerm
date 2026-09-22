@@ -1431,7 +1431,7 @@ function registerWorkerHandle(ipcMain, terminalWorkerManager, channel) {
     // (#2663 / #2673 / TN3179). Mark the payload so the worker skips a
     // second hold / probe in its own process.
     let workerPayload = payload;
-    if (channel === "netcatty:start") {
+    if (channel === "netcatty:start" || channel === "yetiterm:start") {
       const probeResult = await ensureMacLocalNetworkAccess(payload);
       workerPayload = {
         ...attachMacLocalNetworkProbeResult(
@@ -1462,14 +1462,23 @@ function registerHandlers(ipcMain, options = {}) {
   const terminalWorkerManager = options.terminalWorkerManager || null;
   if (terminalWorkerManager) {
     [
+      "yetiterm:start",
       "netcatty:start",
+      "yetiterm:ssh:exec",
       "netcatty:ssh:exec",
+      "yetiterm:ssh:pwd",
       "netcatty:ssh:pwd",
+      "yetiterm:ssh:remoteInfo",
       "netcatty:ssh:remoteInfo",
+      "yetiterm:ssh:distroInfo",
       "netcatty:ssh:distroInfo",
+      "yetiterm:ssh:readRemoteHistory",
       "netcatty:ssh:readRemoteHistory",
+      "yetiterm:ssh:listdir",
       "netcatty:ssh:listdir",
+      "yetiterm:ssh:stats",
       "netcatty:ssh:stats",
+      "yetiterm:ssh:setEncoding",
       "netcatty:ssh:setEncoding",
     ].forEach((channel) => registerWorkerHandle(ipcMain, terminalWorkerManager, channel));
     registerOwnedAuthResponseHandler(
@@ -1496,14 +1505,23 @@ function registerHandlers(ipcMain, options = {}) {
       });
     });
   } else {
+    ipcMain.handle("yetiterm:start", startSSHSessionWrapper);
     ipcMain.handle("netcatty:start", startSSHSessionWrapper);
+    ipcMain.handle("yetiterm:ssh:exec", execCommand);
     ipcMain.handle("netcatty:ssh:exec", execCommand);
+    ipcMain.handle("yetiterm:ssh:pwd", getSessionPwd);
     ipcMain.handle("netcatty:ssh:pwd", getSessionPwd);
+    ipcMain.handle("yetiterm:ssh:remoteInfo", getSessionRemoteInfo);
     ipcMain.handle("netcatty:ssh:remoteInfo", getSessionRemoteInfo);
+    ipcMain.handle("yetiterm:ssh:distroInfo", getSessionDistroInfo);
     ipcMain.handle("netcatty:ssh:distroInfo", getSessionDistroInfo);
+    ipcMain.handle("yetiterm:ssh:readRemoteHistory", readRemoteHistory);
     ipcMain.handle("netcatty:ssh:readRemoteHistory", readRemoteHistory);
+    ipcMain.handle("yetiterm:ssh:listdir", listSessionDir);
     ipcMain.handle("netcatty:ssh:listdir", listSessionDir);
+    ipcMain.handle("yetiterm:ssh:stats", getServerStats);
     ipcMain.handle("netcatty:ssh:stats", getServerStats);
+    ipcMain.handle("yetiterm:ssh:setEncoding", setSessionEncoding);
     ipcMain.handle("netcatty:ssh:setEncoding", setSessionEncoding);
     ipcMain.on("netcatty:zmodem:overwrite-response", (_event, payload) => {
       const resolve = zmodemOverwritePending.get(payload?.requestId);
@@ -1516,9 +1534,26 @@ function registerHandlers(ipcMain, options = {}) {
     // Register the SSH host key verification response handler
     hostKeyVerifier.registerHandler(ipcMain);
   }
+  ipcMain.handle("yetiterm:key:generate", generateKeyPair);
   ipcMain.handle("netcatty:key:generate", generateKeyPair);
+  ipcMain.handle("yetiterm:sshDebugLog:info", getSshDebugLogInfo);
   ipcMain.handle("netcatty:sshDebugLog:info", getSshDebugLogInfo);
+  ipcMain.handle("yetiterm:sshDebugLog:openDir", openSshDebugLogDir);
   ipcMain.handle("netcatty:sshDebugLog:openDir", openSshDebugLogDir);
+  ipcMain.handle("yetiterm:ssh:check-agent", async (_event, options = {}) => {
+    const identityAgent = typeof options === "string" ? options : options.identityAgent;
+    if (process.platform === "win32" && !identityAgent) {
+      return await checkWindowsSshAgent();
+    }
+    const socketPath = options?.agentForwarding
+      ? await getAvailableForwardingAgentSocket(identityAgent, typeof options === "string" ? {} : options)
+      : await getAvailableSystemAgentSocket(identityAgent, typeof options === "string" ? {} : options);
+    return {
+      running: Boolean(socketPath),
+      startupType: socketPath ? "running" : "stopped",
+      error: socketPath ? null : "SSH Agent socket not connectable",
+    };
+  });
   ipcMain.handle("netcatty:ssh:check-agent", async (_event, options = {}) => {
     const identityAgent = typeof options === "string" ? options : options.identityAgent;
     if (process.platform === "win32" && !identityAgent) {

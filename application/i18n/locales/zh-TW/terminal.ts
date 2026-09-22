@@ -332,7 +332,7 @@ export const zhTWTerminalMessages: Messages = {
     '貼上文字時使用轉義序列包裹，以便終端區分貼上和鍵入。如果出現 ^[[200~ 字樣請關閉此選項。',
   'settings.terminal.behavior.autoUploadClipboardImage': '貼上時自動上傳剪貼簿圖片',
   'settings.terminal.behavior.autoUploadClipboardImage.desc':
-    '當剪貼簿包含圖片時，在遠端工作階段中貼上會透過 SFTP 將圖片上傳到遠端目前目錄的 .netcatty-paste-images/ 資料夾，並在終端輸入遠端路徑，而不是貼上文字。',
+    '當剪貼簿包含圖片時，在遠端工作階段中貼上會透過 SFTP 將圖片上傳到遠端目前目錄的 .yetiterm-paste-images/ 資料夾，並在終端輸入遠端路徑，而不是貼上文字。',
   'settings.terminal.behavior.confirmMultilinePaste': '貼上多行前先詢問',
   'settings.terminal.behavior.confirmMultilinePaste.desc':
     '貼上多行文字時先彈出確認對話框，顯示行數和字元數、可編輯的預覽，並提供傳送 / 逐行傳送 / 取消操作。可保護不支援括號貼上的網路設備 CLI（Cisco IOS、華為 VRP、H3C Comware）。',

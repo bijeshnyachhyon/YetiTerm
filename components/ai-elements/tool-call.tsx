@@ -94,13 +94,13 @@ export function extractDisplayCommand(args: Record<string, unknown> | undefined)
   );
   if (strWrap) cmdString = strWrap[2];
 
-  // Netcatty CLI wrapper extraction.
-  // Packaged / Windows paths may be `netcatty-tool-cli.cjs` or `.cmd`; strip the
+  // CLI wrapper extraction (supports yetiterm-tool-cli and legacy netcatty-tool-cli).
+  // Packaged / Windows paths may be `yetiterm-tool-cli.cjs` or `.cmd`; strip the
   // optional extension so the subcommand after the binary is still found.
-  const cliIdx = cmdString.search(/netcatty-tool-cli(?:\.(?:cjs|cmd|exe|js))?/i);
+  const cliIdx = cmdString.search(/(?:yetiterm|netcatty)-tool-cli(?:\.(?:cjs|cmd|exe|js))?/i);
   if (cliIdx >= 0) {
-    const cliMatch = cmdString.slice(cliIdx).match(/^netcatty-tool-cli(?:\.(?:cjs|cmd|exe|js))?/i);
-    const cliTokenLen = cliMatch?.[0]?.length ?? 'netcatty-tool-cli'.length;
+    const cliMatch = cmdString.slice(cliIdx).match(/^(?:yetiterm|netcatty)-tool-cli(?:\.(?:cjs|cmd|exe|js))?/i);
+    const cliTokenLen = cliMatch?.[0]?.length ?? 'yetiterm-tool-cli'.length;
     const afterCli = cmdString
       .slice(cliIdx + cliTokenLen)
       .replace(/^["']?\s*/, '');
@@ -122,12 +122,12 @@ export function extractDisplayCommand(args: Record<string, unknown> | undefined)
         return inner;
       }
     }
-    if (sub === 'job-poll') return 'netcatty: poll job';
-    if (sub === 'job-stop') return 'netcatty: stop job';
-    if (sub === 'session') return 'netcatty: inspect session';
-    if (sub === 'env') return 'netcatty: list sessions';
-    if (sub === 'status') return 'netcatty: status';
-    if (sub) return `netcatty: ${sub}`;
+    if (sub === 'job-poll') return 'yetiterm: poll job';
+    if (sub === 'job-stop') return 'yetiterm: stop job';
+    if (sub === 'session') return 'yetiterm: inspect session';
+    if (sub === 'env') return 'yetiterm: list sessions';
+    if (sub === 'status') return 'yetiterm: status';
+    if (sub) return `yetiterm: ${sub}`;
   }
 
   return cmdString;
@@ -181,14 +181,14 @@ export function approvalCommandWasUnwrapped(
   if (!displayCommand) return false;
   const raw = rawCommandString(args);
   if (!raw || raw === displayCommand) return false;
-  return raw.includes('netcatty-tool-cli') || /(?:^|\/)(sh|bash|zsh|fish|ash|dash)\s+-l?c\s+/.test(raw)
+  return raw.includes('yetiterm-tool-cli') || raw.includes('netcatty-tool-cli') || /(?:^|\/)(sh|bash|zsh|fish|ash|dash)\s+-l?c\s+/.test(raw)
     || (Array.isArray(args?.command) && args.command.length >= 3);
 }
 
 /**
  * Best-effort execution context for approval review (session / cwd / shell).
  * Never invents host names; only surfaces fields already present on tool args
- * or explicit netcatty-tool-cli flags in the command string.
+ * or explicit yetiterm-tool-cli / netcatty-tool-cli flags in the command string.
  */
 export function extractApprovalExecutionContext(
   args: Record<string, unknown> | undefined,
@@ -223,10 +223,10 @@ export function extractApprovalExecutionContext(
     }
   }
 
-  // Skills+CLI wrappers keep the Netcatty target only on CLI flags after unwrap.
+  // Skills+CLI wrappers keep the target only on CLI flags after unwrap.
   if (!sessionId) {
     const cmd = rawCommandString(args);
-    if (cmd && cmd.includes('netcatty-tool-cli')) {
+    if (cmd && (cmd.includes('yetiterm-tool-cli') || cmd.includes('netcatty-tool-cli'))) {
       const sessionMatch = cmd.match(/--session(?:\s+|=)(?:"([^"]+)"|'([^']+)'|(\S+))/);
       const fromFlag = sessionMatch?.[1] ?? sessionMatch?.[2] ?? sessionMatch?.[3];
       if (fromFlag) sessionId = fromFlag;

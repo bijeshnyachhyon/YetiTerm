@@ -111,7 +111,7 @@ test("terminal user paste auto-uploads a clipboard image in remote sessions", as
     },
   });
 
-  assert.deepEqual(writes, [{ data: "/home/alice/.netcatty-paste-images/shot.png" }]);
+  assert.deepEqual(writes, [{ data: "/home/alice/.yetiterm-paste-images/shot.png" }]);
   assert.deepEqual(readTextCalls, []);
 });
 

@@ -5,6 +5,7 @@
 import { Loader2, Play } from 'lucide-react';
 import React from 'react';
 import { useI18n } from '../../application/i18n/I18nProvider';
+import { formatTerminalConnectionErrorMessage } from '../../domain/terminalErrorFormat';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 
@@ -44,7 +45,7 @@ export const TerminalConnectionLogList: React.FC<TerminalConnectionLogListProps>
                 {error && (
                     <div className="flex items-start gap-2 text-destructive">
                         <div className="mt-[0.4rem] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-destructive" />
-                        <div className="min-w-0 break-words leading-5">{error}</div>
+                        <div className="min-w-0 break-words leading-5">{formatTerminalConnectionErrorMessage(error)}</div>
                     </div>
                 )}
             </div>

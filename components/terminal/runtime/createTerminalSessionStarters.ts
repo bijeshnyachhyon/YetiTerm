@@ -61,6 +61,7 @@ import { resolveHostSshConnectionTimeouts } from "../../../domain/sshConnectionT
 import { isPluginHostProtocol, sanitizePluginConnection } from "../../../domain/pluginConnection";
 import { hydrateVaultStoredKeys } from "../../../infrastructure/persistence/secureFieldAdapter";
 import { buildSftpHostCredentials } from "../../../application/state/sftp/useSftpHostCredentials";
+import { formatTerminalConnectionErrorMessage } from "../../../domain/terminalErrorFormat";
 
 const collectConnectKeyIds = (
   host: Host,
@@ -853,7 +854,7 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
       ctx.setIsConnectionAwaitingUserInput?.(false);
       ctx.setIsConnectionPastTcpDial?.(false);
 
-      const message = err instanceof Error ? err.message : String(err);
+      const message = formatTerminalConnectionErrorMessage(err);
       const authError = isAuthError(err);
 
       if (isJumpHostAuthError(err, message)) {
@@ -1071,7 +1072,7 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
         return;
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+      const message = formatTerminalConnectionErrorMessage(err);
       if (message.includes(TELNET_SESSION_REPLACED_ERROR)) {
         cleanupTelnetStartupWait();
         return;
@@ -1334,7 +1335,7 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
       cancelPendingStartupCommand?.();
       cancelPendingStartupCommand = undefined;
       if (ignoreStaleAttemptUi()) return;
-      const message = err instanceof Error ? err.message : String(err);
+      const message = formatTerminalConnectionErrorMessage(err);
       ctx.setError(message);
       writeTerminalLine(ctx, term, `\r\n[Failed to start Mosh: ${message}]`);
       ctx.updateStatus("disconnected");
@@ -1654,7 +1655,7 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
       }
     } catch (err) {
       if (ignoreStaleAttemptUi()) return;
-      const message = err instanceof Error ? err.message : String(err);
+      const message = formatTerminalConnectionErrorMessage(err);
       ctx.setError(message);
       writeTerminalLine(ctx, term, `\r\n[Failed to start EternalTerminal: ${message}]`);
       ctx.updateStatus("disconnected");
@@ -1806,7 +1807,7 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
     } catch (error) {
       releasePendingStartCancellation();
       if (ignoreStaleAttemptUi()) return;
-      const message = error instanceof Error ? error.message : String(error);
+      const message = formatTerminalConnectionErrorMessage(error);
       ctx.setError(message);
       writeTerminalLine(ctx, term, "\r\n[Failed to start plugin connection. See connection details.]");
       ctx.updateStatus("disconnected");
@@ -1929,7 +1930,7 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
       scheduleStartupCommand(ctx, term, id);
     } catch (err) {
       if (ignoreStaleAttemptUi()) return;
-      const message = err instanceof Error ? err.message : String(err);
+      const message = formatTerminalConnectionErrorMessage(err);
       ctx.setError(message);
       writeTerminalLine(ctx, term, `\r\n[Failed to start local shell: ${message}]`);
       ctx.updateStatus("disconnected");
@@ -2148,7 +2149,7 @@ export const createTerminalSessionStarters = (ctx: TerminalSessionStartersContex
     } catch (err) {
       cleanupSerialStartupWait();
       if (ignoreStaleAttemptUi()) return;
-      const message = err instanceof Error ? err.message : String(err);
+      const message = formatTerminalConnectionErrorMessage(err);
       ctx.setError(message);
       writeTerminalLine(ctx, term, `\r\n[Failed to connect to serial port: ${message}]`);
       ctx.updateStatus("disconnected");

@@ -43,16 +43,41 @@ test('codex Skills+CLI exec: unwrap shell + netcatty-cli -> remote command', () 
 test('codex Skills+CLI session subcommand -> friendly title', () => {
   assert.equal(
     extractDisplayCommand({
+      command: `/bin/zsh -lc '"/abs/yetiterm-tool-cli" session --session X'`,
+    }),
+    'yetiterm: inspect session',
+  );
+  assert.equal(
+    extractDisplayCommand({
       command: `/bin/zsh -lc '"/abs/netcatty-tool-cli" session --session X'`,
     }),
-    'netcatty: inspect session',
+    'yetiterm: inspect session',
   );
 });
 
-test('raw (unwrapped) netcatty-tool-cli exec still works', () => {
+test('raw (unwrapped) yetiterm-tool-cli and netcatty-tool-cli exec still works', () => {
+  assert.equal(
+    extractDisplayCommand({ command: `"/abs/yetiterm-tool-cli" exec --session X -- "uptime"` }),
+    'uptime',
+  );
   assert.equal(
     extractDisplayCommand({ command: `"/abs/netcatty-tool-cli" exec --session X -- "uptime"` }),
     'uptime',
+  );
+});
+
+test('yetiterm-tool-cli.cjs wrapper still unwraps to remote command', () => {
+  assert.equal(
+    extractDisplayCommand({
+      command: `/bin/zsh -lc '"/abs/yetiterm-tool-cli.cjs" exec --session X -- "uptime"'`,
+    }),
+    'uptime',
+  );
+  assert.equal(
+    extractDisplayCommand({
+      command: `"/Resources/yetiterm-tool-cli.cjs" exec --session X -- "df -h"`,
+    }),
+    'df -h',
   );
 });
 
@@ -80,8 +105,9 @@ test('netcatty-tool-cli.cmd wrapper still unwraps to remote command', () => {
   );
 });
 
-test('netcatty-tool-cli env -> list sessions', () => {
-  assert.equal(extractDisplayCommand({ command: 'netcatty-tool-cli env' }), 'netcatty: list sessions');
+test('yetiterm-tool-cli env -> list sessions', () => {
+  assert.equal(extractDisplayCommand({ command: 'yetiterm-tool-cli env' }), 'yetiterm: list sessions');
+  assert.equal(extractDisplayCommand({ command: 'netcatty-tool-cli env' }), 'yetiterm: list sessions');
 });
 
 test('array shell-wrap shape still unwraps (regression)', () => {

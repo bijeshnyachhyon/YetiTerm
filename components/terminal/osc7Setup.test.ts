@@ -158,9 +158,9 @@ test("runOsc7SetupAction stages the script and types a short runner for user-swi
         return {
           success: false,
           stdout: `${OSC7_SETUP_OTHER_USER_MARKER}bash\n`,
-          stderr: "Netcatty OSC 7 setup: the active terminal shell belongs to another user\n",
+          stderr: "YetiTerm OSC 7 setup: the active terminal shell belongs to another user\n",
           code: 5,
-          error: "Netcatty OSC 7 setup: the active terminal shell belongs to another user",
+          error: "YetiTerm OSC 7 setup: the active terminal shell belongs to another user",
         };
       }
       return {
@@ -283,8 +283,8 @@ test("buildOsc7SetupCommand configures bash once and prompt loading stays idempo
     const bashrc = readFileSync(bashrcPath, "utf8");
     assert.equal(markerCount(bashrc), 2);
     assert.match(bashrc, /PROMPT_COMMAND/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
-    assert.match(bashrc, /netcatty-osc7-version: 2/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
+    assert.match(bashrc, /yetiterm-osc7-version: 2/);
     assert.match(bashrc, /declare -\[A-Za-z\]\*a|declare -p PROMPT_COMMAND/);
 
     const output = execFileSync(
@@ -298,7 +298,7 @@ test("buildOsc7SetupCommand configures bash once and prompt loading stays idempo
 
     assert.match(output, /existing/);
     // Guarded hook installed once even after double-source.
-    assert.equal(output.split("declare -F __netcatty_osc7_prompt").length - 1, 1);
+    assert.equal(output.split("declare -F __yetiterm_osc7_prompt").length - 1, 1);
     // Bare v1 hook must not remain in PROMPT_COMMAND (only the function body may mention osc7_cwd).
     assert.doesNotMatch(output, /(^|\n)osc7_cwd(\n|$)/);
   });
@@ -328,8 +328,8 @@ test("buildOsc7SetupCommand upgrades legacy bash snippet in place", () => {
 
     const bashrc = readFileSync(bashrcPath, "utf8");
     assert.equal(markerCount(bashrc), 2);
-    assert.match(bashrc, /netcatty-osc7-version: 2/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
+    assert.match(bashrc, /yetiterm-osc7-version: 2/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
     assert.match(bashrc, /# user preamble/);
     assert.match(bashrc, /# user epilogue/);
     assert.doesNotMatch(bashrc, /printf 'legacy'/);
@@ -362,11 +362,12 @@ test("buildOsc7SetupCommand does not truncate bashrc when start marker lacks end
     assert.match(bashrc, /# keep-me-before/);
     assert.match(bashrc, /# important-user-config-after-open-marker/);
     assert.match(bashrc, /alias ll=/);
-    assert.match(bashrc, /netcatty-osc7-version: 2/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
+    assert.match(bashrc, /yetiterm-osc7-version: 2/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
     // Open region kept + complete v2 appended (no truncation of user lines).
-    assert.equal((bashrc.match(/# >>> Netcatty OSC 7 cwd tracking >>>/g) || []).length, 2);
-    assert.equal((bashrc.match(/# <<< Netcatty OSC 7 cwd tracking <<</g) || []).length, 1);
+    assert.equal((bashrc.match(/# >>> Netcatty OSC 7 cwd tracking >>>/g) || []).length, 1);
+    assert.equal((bashrc.match(/# >>> YetiTerm OSC 7 cwd tracking >>>/g) || []).length, 1);
+    assert.equal((bashrc.match(/# <<< YetiTerm OSC 7 cwd tracking <<</g) || []).length, 1);
   });
 });
 
@@ -391,11 +392,13 @@ test("buildOsc7SetupCommand appends when markers are present but unbalanced", ()
     assert.match(bashrc, /# orphan end first/);
     assert.match(bashrc, /# user config/);
     assert.match(bashrc, /alias ll=/);
-    assert.match(bashrc, /netcatty-osc7-version: 2/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
+    assert.match(bashrc, /yetiterm-osc7-version: 2/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
     // Original markers kept; complete v2 appended.
-    assert.equal((bashrc.match(/# >>> Netcatty OSC 7 cwd tracking >>>/g) || []).length, 2);
-    assert.equal((bashrc.match(/# <<< Netcatty OSC 7 cwd tracking <<</g) || []).length, 2);
+    assert.equal((bashrc.match(/# >>> YetiTerm OSC 7 cwd tracking >>>/g) || []).length, 1);
+    assert.equal((bashrc.match(/# <<< YetiTerm OSC 7 cwd tracking <<</g) || []).length, 1);
+    assert.equal((bashrc.match(/# >>> Netcatty OSC 7 cwd tracking >>>/g) || []).length, 1);
+    assert.equal((bashrc.match(/# <<< Netcatty OSC 7 cwd tracking <<</g) || []).length, 1);
   });
 });
 
@@ -420,11 +423,11 @@ test("buildOsc7SetupCommand recovers from partial v2 write missing end marker", 
     const bashrc = readFileSync(bashrcPath, "utf8");
     assert.match(bashrc, /# keep-me/);
     assert.match(bashrc, /# interrupted before end marker/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
-    assert.match(bashrc, /declare -F __netcatty_osc7_prompt/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
+    assert.match(bashrc, /declare -F __yetiterm_osc7_prompt/);
     // Partial open kept + one recovered complete block; second setup is a no-op.
-    assert.equal((bashrc.match(/# <<< Netcatty OSC 7 cwd tracking <<</g) || []).length, 1);
-    assert.equal((bashrc.match(/# netcatty-osc7-version: 2/g) || []).length, 2);
+    assert.equal((bashrc.match(/# <<< YetiTerm OSC 7 cwd tracking <<</g) || []).length, 1);
+    assert.equal((bashrc.match(/# yetiterm-osc7-version: 2/g) || []).length, 1);
   });
 });
 
@@ -449,7 +452,7 @@ test("buildOsc7SetupCommand preserves user lines after mid-construct interruptio
     // Do not rewrite/truncate even if the partial body is already unusable.
     assert.match(bashrc, /# keep-me/);
     assert.match(bashrc, /alias keep_user_alias=/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
   });
 });
 
@@ -475,11 +478,12 @@ test("buildOsc7SetupCommand recovers when version line exists with unbalanced ma
 
     const bashrc = readFileSync(bashrcPath, "utf8");
     assert.match(bashrc, /# interrupted before end marker/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
-    assert.match(bashrc, /declare -F __netcatty_osc7_prompt/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
+    assert.match(bashrc, /declare -F __yetiterm_osc7_prompt/);
     // Orphan end + one recovered complete block; second run no-ops.
-    assert.equal((bashrc.match(/# <<< Netcatty OSC 7 cwd tracking <<</g) || []).length, 2);
-    assert.equal((bashrc.match(/# netcatty-osc7-version: 2/g) || []).length, 2);
+    assert.equal((bashrc.match(/# <<< YetiTerm OSC 7 cwd tracking <<</g) || []).length, 1);
+    assert.equal((bashrc.match(/# <<< Netcatty OSC 7 cwd tracking <<</g) || []).length, 1);
+    assert.equal((bashrc.match(/# yetiterm-osc7-version: 2/g) || []).length, 1);
   });
 });
 
@@ -502,7 +506,7 @@ test("buildOsc7SetupCommand ignores marker text embedded in echo commands", () =
     assert.match(bashrc, /alias keep_me=/);
     assert.match(bashrc, /echo "# >>> Netcatty OSC 7 cwd tracking >>>"/);
     assert.match(bashrc, /echo "# <<< Netcatty OSC 7 cwd tracking <<<"/);
-    assert.match(bashrc, /netcatty-osc7-version: 2/);
+    assert.match(bashrc, /yetiterm-osc7-version: 2/);
   });
 });
 
@@ -527,14 +531,14 @@ test("buildOsc7SetupCommand upgrades a legacy block wrapped in control flow in p
 
     const bashrc = readFileSync(bashrcPath, "utf8");
     assert.match(bashrc, /if true; then/);
-    assert.match(bashrc, /netcatty-osc7-version: 2/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
+    assert.match(bashrc, /yetiterm-osc7-version: 2/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
     assert.match(bashrc, /^fi$/m);
     assert.match(bashrc, /echo after/);
     // v2 stays inside the if/fi, not only after it.
     const ifIdx = bashrc.indexOf("if true; then");
     const fiIdx = bashrc.indexOf("\nfi\n");
-    const v2Idx = bashrc.indexOf("netcatty-osc7-version: 2");
+    const v2Idx = bashrc.indexOf("yetiterm-osc7-version: 2");
     assert.ok(ifIdx >= 0 && fiIdx > ifIdx && v2Idx > ifIdx && v2Idx < fiIdx);
     execFileSync("/bin/bash", ["-n", bashrcPath], { stdio: "pipe" });
   });
@@ -562,8 +566,8 @@ test("buildOsc7SetupCommand upgrades a read-only legacy bashrc in one atomic wri
     const bashrc = readFileSync(bashrcPath, "utf8");
     assert.match(bashrc, /# before/);
     assert.match(bashrc, /# after/);
-    assert.match(bashrc, /netcatty-osc7-version: 2/);
-    assert.match(bashrc, /__netcatty_osc7_prompt/);
+    assert.match(bashrc, /yetiterm-osc7-version: 2/);
+    assert.match(bashrc, /__yetiterm_osc7_prompt/);
     assert.doesNotMatch(bashrc, /^legacy$/m);
   });
 });
@@ -605,8 +609,8 @@ test("buildOsc7SetupCommand upgrades through a symlinked bashrc without replacin
     const content = readFileSync(realPath, "utf8");
     assert.match(content, /# managed-preamble/);
     assert.match(content, /# managed-epilogue/);
-    assert.match(content, /netcatty-osc7-version: 2/);
-    assert.match(content, /__netcatty_osc7_prompt/);
+    assert.match(content, /yetiterm-osc7-version: 2/);
+    assert.match(content, /__yetiterm_osc7_prompt/);
     assert.doesNotMatch(content, /printf 'legacy'/);
   });
 });
@@ -648,7 +652,7 @@ test("bash snippet still emits OSC 7 when functions are defined", () => {
     const bashrcPath = join(home, ".bashrc");
     const output = execFileSync(
       "/bin/bash",
-      ["-lc", `source ${JSON.stringify(bashrcPath)}; __netcatty_osc7_prompt; true`],
+      ["-lc", `source ${JSON.stringify(bashrcPath)}; __yetiterm_osc7_prompt; true`],
       { env: { ...process.env, HOME: home, PWD: home }, cwd: home },
     ).toString("utf8");
 
@@ -700,7 +704,7 @@ test("bash snippet dedupes hooks across array PROMPT_COMMAND elements", () => {
 
     assert.match(output, /first/);
     assert.match(output, /echo KEEP/);
-    assert.equal(output.split("declare -F __netcatty_osc7_prompt").length - 1, 1);
+    assert.equal(output.split("declare -F __yetiterm_osc7_prompt").length - 1, 1);
     assert.doesNotMatch(output, /\[1\]="osc7_cwd"/);
   });
 });
@@ -726,7 +730,7 @@ test("bash snippet handles exported array PROMPT_COMMAND", () => {
     ).toString("utf8");
 
     assert.match(output, /echo one/);
-    assert.equal(output.split("declare -F __netcatty_osc7_prompt").length - 1, 1);
+    assert.equal(output.split("declare -F __yetiterm_osc7_prompt").length - 1, 1);
     assert.doesNotMatch(output, /osc7_cwd"/);
   });
 });
@@ -844,7 +848,7 @@ test("buildOsc7TypedSetupCommand does not leave the typed runner in bash history
       });
 
       assert.match(output, /echo keepme/);
-      assert.doesNotMatch(output, /NETCATTY_OSC7_FORCE_SHELL|__netcatty_osc7|history -d/);
+      assert.doesNotMatch(output, /YETITERM_OSC7_FORCE_SHELL|NETCATTY_OSC7_FORCE_SHELL|__yetiterm_osc7|__netcatty_osc7|history -d/);
     });
   });
 });
@@ -959,8 +963,8 @@ test("buildOsc7SetupCommand honors zsh ZDOTDIR captured from the current shell",
     const zshrc = readFileSync(zshrcPath, "utf8");
     assert.equal(markerCount(zshrc), 2);
     assert.match(zshrc, /precmd_functions/);
-    assert.match(zshrc, /netcatty-osc7-version: 2/);
-    assert.match(zshrc, /__netcatty_osc7_prompt/);
+    assert.match(zshrc, /yetiterm-osc7-version: 2/);
+    assert.match(zshrc, /__yetiterm_osc7_prompt/);
     assert.equal(existsSync(join(home, ".zshrc")), false);
 
     const precmd = execFileSync(
@@ -971,8 +975,8 @@ test("buildOsc7SetupCommand honors zsh ZDOTDIR captured from the current shell",
         stdio: "pipe",
       },
     ).toString("utf8");
-    assert.match(precmd, /__netcatty_osc7_prompt/);
-    assert.equal(precmd.trim().split(/\s+/).filter((name) => name === "__netcatty_osc7_prompt").length, 1);
+    assert.match(precmd, /__yetiterm_osc7_prompt/);
+    assert.equal(precmd.trim().split(/\s+/).filter((name) => name === "__yetiterm_osc7_prompt").length, 1);
     assert.doesNotMatch(precmd, /(?:^|\s)osc7_cwd(?:\s|$)/);
   });
 });
@@ -990,7 +994,7 @@ test("buildOsc7SetupCommand configures fish once with valid fish syntax", () => 
 
     if (existsSync(fishPath)) {
       execFileSync(fishPath, ["-n", fishConfigPath], { stdio: "pipe" });
-      execFileSync(fishPath, ["-c", `source ${JSON.stringify(fishConfigPath)}; functions -q __netcatty_osc7_cwd`], {
+      execFileSync(fishPath, ["-c", `source ${JSON.stringify(fishConfigPath)}; functions -q __yetiterm_osc7_cwd`], {
         env: { ...process.env, HOME: home },
         stdio: "pipe",
       });
@@ -1064,7 +1068,7 @@ test("buildOsc7ReloadCommand does not leave reload command in bash history", () 
     });
 
     assert.match(output, /echo keepme/);
-    assert.doesNotMatch(output, /osc7_cwd|source .*\.bashrc|__netcatty_osc7|history -d/);
+    assert.doesNotMatch(output, /osc7_cwd|source .*\.bashrc|__yetiterm_osc7|__netcatty_osc7|history -d/);
   });
 });
 
@@ -1111,14 +1115,14 @@ test("buildOsc7ReloadCommand does not delete bash history when reload is not rec
       env: {
         HOME: home,
         HISTFILE: join(home, ".bash_history"),
-        HISTIGNORE: "*__netcatty_osc7_history_cleanup_marker__=1*",
+        HISTIGNORE: "*__yetiterm_osc7_history_cleanup_marker__=1*",
         SHELL: "/bin/bash",
       },
       input: `echo keepme\n${buildOsc7ReloadCommand({ shell: "bash", configPath: bashrcPath }) ?? ""}`,
     });
 
     assert.match(output, /echo keepme/);
-    assert.doesNotMatch(output, /osc7_cwd|source .*\.bashrc|__netcatty_osc7|history -d/);
+    assert.doesNotMatch(output, /osc7_cwd|source .*\.bashrc|__yetiterm_osc7|__netcatty_osc7|history -d/);
   });
 });
 
@@ -1147,7 +1151,7 @@ test("buildOsc7ReloadCommand bypasses custom bash history wrappers", () => {
     });
 
     assert.match(output, /echo keepme/);
-    assert.doesNotMatch(output, /osc7_cwd|source .*\.bashrc|__netcatty_osc7|history -d/);
+    assert.doesNotMatch(output, /osc7_cwd|source .*\.bashrc|__yetiterm_osc7|__netcatty_osc7|history -d/);
   });
 });
 

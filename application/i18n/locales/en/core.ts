@@ -696,7 +696,7 @@ Highlight the focused split pane:
     'Wrap pasted text with escape sequences so the shell can distinguish paste from typed input. Disable if you see ^[[200~ artifacts.',
   'settings.terminal.behavior.autoUploadClipboardImage': 'Auto-upload clipboard images on paste',
   'settings.terminal.behavior.autoUploadClipboardImage.desc':
-    'When the clipboard holds an image, pasting in a remote session uploads it via SFTP to .netcatty-paste-images/ under the remote working directory and inserts the remote path instead of pasting text.',
+    'When the clipboard holds an image, pasting in a remote session uploads it via SFTP to .yetiterm-paste-images/ under the remote working directory and inserts the remote path instead of pasting text.',
   'settings.terminal.behavior.confirmMultilinePaste': 'Ask before pasting multiple lines',
   'settings.terminal.behavior.confirmMultilinePaste.desc':
     'Show a confirmation dialog before pasting multiple lines, with the line/character count, an editable preview, and Send / Send line by line / Cancel actions. Protects switch and firewall CLIs (Cisco IOS, Huawei VRP, H3C Comware) that do not support bracketed paste.',

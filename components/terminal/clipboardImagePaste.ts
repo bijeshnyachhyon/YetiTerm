@@ -1,4 +1,4 @@
-const REMOTE_CLIPBOARD_IMAGE_DIR = ".netcatty-paste-images";
+const REMOTE_CLIPBOARD_IMAGE_DIR = ".yetiterm-paste-images";
 
 type ClipboardImageFile = {
   path: string;
@@ -45,7 +45,7 @@ export function getRemoteClipboardImageUploadErrorMessageKey(
 const shellSafePathPattern = /^[A-Za-z0-9_./~:@%+=,-]+$/;
 
 export function sanitizeRemoteClipboardImageName(name: string): string {
-  const fallback = "netcatty-paste.png";
+  const fallback = "yetiterm-paste.png";
   const trimmed = name.trim() || fallback;
   const sanitized = trimmed
     .replace(/[\0/\\]/g, "_")

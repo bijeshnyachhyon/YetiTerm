@@ -332,7 +332,7 @@ export const zhCNTerminalMessages: Messages = {
     '粘贴文本时使用转义序列包裹，以便终端区分粘贴和键入。如果出现 ^[[200~ 字样请关闭此选项。',
   'settings.terminal.behavior.autoUploadClipboardImage': '粘贴时自动上传剪贴板图片',
   'settings.terminal.behavior.autoUploadClipboardImage.desc':
-    '当剪贴板包含图片时，在远程会话中粘贴会通过 SFTP 将图片上传到远端当前目录的 .netcatty-paste-images/ 文件夹，并在终端输入远端路径，而不是粘贴文本。',
+    '当剪贴板包含图片时，在远程会话中粘贴会通过 SFTP 将图片上传到远端当前目录的 .yetiterm-paste-images/ 文件夹，并在终端输入远端路径，而不是粘贴文本。',
   'settings.terminal.behavior.confirmMultilinePaste': '粘贴多行前先询问',
   'settings.terminal.behavior.confirmMultilinePaste.desc':
     '粘贴多行文本时先弹出确认对话框，显示行数和字符数、可编辑的预览，并提供发送 / 逐行发送 / 取消操作。可保护不支持括号粘贴的网络设备 CLI（Cisco IOS、华为 VRP、H3C Comware）。',

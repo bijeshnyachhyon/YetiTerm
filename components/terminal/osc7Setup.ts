@@ -1,4 +1,5 @@
-export const OSC7_MARKER = "Netcatty OSC 7 cwd tracking";
+export const OSC7_MARKER = "YetiTerm OSC 7 cwd tracking";
+export const LEGACY_OSC7_MARKER = "Netcatty OSC 7 cwd tracking";
 
 export const OSC7_SETUP_TARGETS = [
   "~/.bashrc",
@@ -98,13 +99,14 @@ const quoteForSingleQuotedShellString = (value: string): string =>
 
 const URL_PATH_AWK_SCRIPT_QUOTED = quoteForSingleQuotedShellString(URL_PATH_AWK_SCRIPT);
 
-const BASH_DELETE_MARKED_HISTORY_COMMAND = String.raw`if test -n "${DOLLAR}{BASH_VERSION-}"; then __netcatty_osc7_history_cleanup_marker__=1; __netcatty_osc7_history_line=$(HISTTIMEFORMAT= builtin history 1 2>/dev/null) || __netcatty_osc7_history_line=""; case "$__netcatty_osc7_history_line" in *__netcatty_osc7_history_cleanup_marker__=1*) __netcatty_osc7_history_number=$(printf "%s\n" "$__netcatty_osc7_history_line" | sed "s/^ *\([0-9][0-9]*\).*/\1/"); case "$__netcatty_osc7_history_number" in ""|*[!0-9]*) ;; *) builtin history -d "$__netcatty_osc7_history_number" 2>/dev/null || true;; esac;; esac; unset __netcatty_osc7_history_cleanup_marker__ __netcatty_osc7_history_line __netcatty_osc7_history_number 2>/dev/null || true; fi`;
+const BASH_DELETE_MARKED_HISTORY_COMMAND = String.raw`if test -n "${DOLLAR}{BASH_VERSION-}"; then __yetiterm_osc7_history_cleanup_marker__=1; __yetiterm_osc7_history_line=$(HISTTIMEFORMAT= builtin history 1 2>/dev/null) || __yetiterm_osc7_history_line=""; case "$__yetiterm_osc7_history_line" in *__yetiterm_osc7_history_cleanup_marker__=1*) __yetiterm_osc7_history_number=$(printf "%s\n" "$__yetiterm_osc7_history_line" | sed "s/^ *\([0-9][0-9]*\).*/\1/"); case "$__yetiterm_osc7_history_number" in ""|*[!0-9]*) ;; *) builtin history -d "$__yetiterm_osc7_history_number" 2>/dev/null || true;; esac;; esac; unset __yetiterm_osc7_history_cleanup_marker__ __yetiterm_osc7_history_line __yetiterm_osc7_history_number 2>/dev/null || true; fi`;
 
 const POSIX_SETUP_SCRIPT = String.raw`set -eu
-marker="# >>> Netcatty OSC 7 cwd tracking >>>"
+marker="# >>> YetiTerm OSC 7 cwd tracking >>>"
+legacy_marker="# >>> Netcatty OSC 7 cwd tracking >>>"
 SELF=$$
-expected_cwd="${DOLLAR}{NETCATTY_OSC7_EXPECTED_CWD:-}"
-forced_shell="${DOLLAR}{NETCATTY_OSC7_FORCE_SHELL:-}"
+expected_cwd="${DOLLAR}{YETITERM_OSC7_EXPECTED_CWD:-${DOLLAR}{NETCATTY_OSC7_EXPECTED_CWD:-}}"
+forced_shell="${DOLLAR}{YETITERM_OSC7_FORCE_SHELL:-${DOLLAR}{NETCATTY_OSC7_FORCE_SHELL:-}}"
 
 find_login_shell() {
   _shell=$(ps -e -o pid=,ppid=,tty=,comm= 2>/dev/null | awk -v pp="$1" -v self="$SELF" '
@@ -184,19 +186,19 @@ if [ -n "$active_shell_pid" ]; then
   if [ -n "$active_uid" ] && [ -n "$self_uid" ] && [ "$active_uid" != "$self_uid" ]; then
     other_shell=$(cat "/proc/$active_shell_pid/comm" 2>/dev/null | sed "s/^-//" | tr -d "[:space:]" || true)
     printf '%s%s\n' '${OSC7_SETUP_OTHER_USER_MARKER}' "${DOLLAR}{other_shell:-unknown}"
-    printf "Netcatty OSC 7 setup: the active terminal shell belongs to another user\n" >&2
+    printf "YetiTerm OSC 7 setup: the active terminal shell belongs to another user\n" >&2
     exit 5
   fi
 fi
 
 if [ -d /proc ] && [ -n "$expected_cwd" ]; then
   if [ -z "$active_shell_pid" ]; then
-    printf "Netcatty OSC 7 setup: could not identify the active terminal shell\n" >&2
+    printf "YetiTerm OSC 7 setup: could not identify the active terminal shell\n" >&2
     exit 4
   fi
   active_cwd=$(readlink "/proc/$active_shell_pid/cwd" 2>/dev/null || true)
   if [ "$active_cwd" != "$expected_cwd" ]; then
-    printf "Netcatty OSC 7 setup: active terminal shell did not match the current tab\n" >&2
+    printf "YetiTerm OSC 7 setup: active terminal shell did not match the current tab\n" >&2
     exit 4
   fi
 fi
@@ -215,7 +217,7 @@ if [ -n "$active_shell_pid" ]; then
     active_zdotdir=$(read_proc_env_value "$active_env_file" ZDOTDIR || true)
     active_xdg_config_home=$(read_proc_env_value "$active_env_file" XDG_CONFIG_HOME || true)
   elif [ "$active_shell_pid" != "$login_shell_pid" ]; then
-    printf "Netcatty OSC 7 setup: cannot silently configure an active shell owned by another user\n" >&2
+    printf "YetiTerm OSC 7 setup: cannot silently configure an active shell owned by another user\n" >&2
     exit 3
   fi
 fi
@@ -234,35 +236,40 @@ case "$forced_shell" in
 esac
 
 home_dir="${DOLLAR}{active_home:-$HOME}"
-zdotdir="${DOLLAR}{active_zdotdir:-${DOLLAR}{NETCATTY_ZDOTDIR:-${DOLLAR}{ZDOTDIR:-$home_dir}}}"
-xdg_config_home="${DOLLAR}{active_xdg_config_home:-${DOLLAR}{NETCATTY_XDG_CONFIG_HOME:-${DOLLAR}{XDG_CONFIG_HOME:-$home_dir/.config}}}"
+zdotdir="${DOLLAR}{active_zdotdir:-${DOLLAR}{YETITERM_ZDOTDIR:-${DOLLAR}{NETCATTY_ZDOTDIR:-${DOLLAR}{ZDOTDIR:-$home_dir}}}}"
+xdg_config_home="${DOLLAR}{active_xdg_config_home:-${DOLLAR}{YETITERM_XDG_CONFIG_HOME:-${DOLLAR}{NETCATTY_XDG_CONFIG_HOME:-${DOLLAR}{XDG_CONFIG_HOME:-$home_dir/.config}}}}"
 
 case "$shell_name" in
   bash) config="$home_dir/.bashrc" ;;
   zsh) config="$zdotdir/.zshrc" ;;
   fish) config="$xdg_config_home/fish/config.fish" ;;
   *)
-    printf "Netcatty OSC 7 setup: unsupported shell %s\n" "$shell_name" >&2
+    printf "YetiTerm OSC 7 setup: unsupported shell %s\n" "$shell_name" >&2
     printf "Supported shells: bash, zsh, fish\n" >&2
     exit 2
     ;;
 esac
 
-__netcatty_osc7_url_path() {
+__yetiterm_osc7_url_path() {
   printf "%s" "$1" | LC_ALL=C awk ${URL_PATH_AWK_SCRIPT_QUOTED}
+}
+__netcatty_osc7_url_path() {
+  __yetiterm_osc7_url_path "$@"
 }
 
 mkdir -p "$(dirname "$config")"
 touch "$config"
 # Snippet v2: guarded prompt entry + unexport PROMPT_COMMAND so su without
 # login does not inherit a bare osc7_cwd call into another user's shell.
-snippet_version_marker="netcatty-osc7-version: 2"
-end_marker="# <<< Netcatty OSC 7 cwd tracking <<<"
+snippet_version_marker="yetiterm-osc7-version: 2"
+legacy_version_marker="netcatty-osc7-version: 2"
+end_marker="# <<< YetiTerm OSC 7 cwd tracking <<<"
+legacy_end_marker="# <<< Netcatty OSC 7 cwd tracking <<<"
 # Returns 0 when every start marker is closed by a matching end marker.
 # Markers must be whole lines (optional indent) so an echo of the marker text
 # does not count as a block boundary.
-netcatty_osc7_markers_balanced() {
-  awk -v start="$marker" -v end="$end_marker" '
+yetiterm_osc7_markers_balanced() {
+  awk -v start="$marker" -v lstart="$legacy_marker" -v end="$end_marker" -v lend="$legacy_end_marker" '
     function trim(s) {
       sub(/^[ \t]+/, "", s)
       sub(/[ \t]+$/, "", s)
@@ -270,12 +277,12 @@ netcatty_osc7_markers_balanced() {
     }
     {
       t = trim($0)
-      if (t == start) {
+      if (t == start || t == lstart) {
         if (skip) incomplete = 1
         else skip = 1
         next
       }
-      if (t == end) {
+      if (t == end || t == lend) {
         if (!skip) incomplete = 1
         else skip = 0
         next
@@ -291,8 +298,8 @@ netcatty_osc7_markers_balanced() {
 # Returns 0 when at least one contiguous start..end region contains the v2
 # version marker line. Older malformed markers outside that region are ignored
 # so recovery appends stay idempotent.
-netcatty_osc7_has_complete_v2_block() {
-  awk -v start="$marker" -v end="$end_marker" -v ver_line="# $snippet_version_marker" '
+yetiterm_osc7_has_complete_v2_block() {
+  awk -v start="$marker" -v lstart="$legacy_marker" -v end="$end_marker" -v lend="$legacy_end_marker" -v ver_line="# $snippet_version_marker" -v lver_line="# $legacy_version_marker" '
     function trim(s) {
       sub(/^[ \t]+/, "", s)
       sub(/[ \t]+$/, "", s)
@@ -300,13 +307,13 @@ netcatty_osc7_has_complete_v2_block() {
     }
     {
       t = trim($0)
-      if (t == start) {
+      if (t == start || t == lstart) {
         skip = 1
         has_ver = 0
         next
       }
-      if (skip && t == ver_line) has_ver = 1
-      if (t == end) {
+      if (skip && (t == ver_line || t == lver_line)) has_ver = 1
+      if (t == end || t == lend) {
         if (skip && has_ver) found = 1
         skip = 0
         has_ver = 0
@@ -319,7 +326,7 @@ netcatty_osc7_has_complete_v2_block() {
 
 # Resolve config to a real path so upgrades rewrite the final target of a
 # symlink chain without replacing intermediate links.
-netcatty_osc7_resolve_path() {
+yetiterm_osc7_resolve_path() {
   _path="$1"
   if command -v realpath >/dev/null 2>&1; then
     _resolved=$(realpath "$_path" 2>/dev/null || true)
@@ -342,7 +349,7 @@ netcatty_osc7_resolve_path() {
 }
 
 # Best-effort portable mode bits for chmod after atomic replace.
-netcatty_osc7_file_mode() {
+yetiterm_osc7_file_mode() {
   if stat -c '%a' "$1" >/dev/null 2>&1; then
     stat -c '%a' "$1"
   elif stat -f '%OLp' "$1" >/dev/null 2>&1; then
@@ -351,7 +358,7 @@ netcatty_osc7_file_mode() {
 }
 
 # Best-effort portable owner:group for chown after atomic replace.
-netcatty_osc7_file_owner() {
+yetiterm_osc7_file_owner() {
   if stat -c '%u:%g' "$1" >/dev/null 2>&1; then
     stat -c '%u:%g' "$1"
   elif stat -f '%u:%g' "$1" >/dev/null 2>&1; then
@@ -360,161 +367,171 @@ netcatty_osc7_file_owner() {
 }
 
 # Append the v2 snippet to the given file path ($1).
-netcatty_osc7_append_v2() {
-  __netcatty_osc7_dest="$1"
+yetiterm_osc7_append_v2() {
+  __yetiterm_osc7_dest="$1"
   case "$shell_name" in
     bash)
-      cat >> "$__netcatty_osc7_dest" <<'NETCATTY_OSC7_BASH'
+      cat >> "$__yetiterm_osc7_dest" <<'YETITERM_OSC7_BASH'
 
-# >>> Netcatty OSC 7 cwd tracking >>>
-# netcatty-osc7-version: 2
-__netcatty_osc7_url_path() {
+# >>> YetiTerm OSC 7 cwd tracking >>>
+# yetiterm-osc7-version: 2
+__yetiterm_osc7_url_path() {
   printf "%s" "$1" | LC_ALL=C awk '${URL_PATH_AWK_SCRIPT}'
 }
 osc7_cwd() {
-  printf '\033]7;file://%s%s\a' "${DOLLAR}{HOSTNAME:-localhost}" "$(__netcatty_osc7_url_path "$PWD")"
+  printf '\033]7;file://%s%s\a' "${DOLLAR}{HOSTNAME:-localhost}" "$(__yetiterm_osc7_url_path "$PWD")"
 }
 # Safe prompt hook: no-op when helpers are missing (PROMPT_COMMAND string may
 # be inherited across su without this rc file).
-__netcatty_osc7_prompt() {
+__yetiterm_osc7_prompt() {
   if declare -F osc7_cwd >/dev/null 2>&1; then
     osc7_cwd
   fi
 }
+__netcatty_osc7_prompt() {
+  __yetiterm_osc7_prompt
+}
 # Install/dedupe the guarded prompt hook for both scalar and array PROMPT_COMMAND.
-__netcatty_osc7_hook='declare -F __netcatty_osc7_prompt >/dev/null 2>&1 && __netcatty_osc7_prompt'
+__yetiterm_osc7_hook='declare -F __yetiterm_osc7_prompt >/dev/null 2>&1 && __yetiterm_osc7_prompt'
 # Match declare -a / -ax / -ar etc. (array flag may appear with other flags).
 if declare -p PROMPT_COMMAND 2>/dev/null | grep -Eq 'declare -[A-Za-z]*a'; then
-  __netcatty_osc7_new=()
-  __netcatty_osc7_has_hook=0
-  for __netcatty_osc7_el in "${DOLLAR}{PROMPT_COMMAND[@]}"; do
-    case "${DOLLAR}{__netcatty_osc7_el}" in
-      osc7_cwd|__netcatty_osc7_prompt) continue ;;
-      *'declare -F __netcatty_osc7_prompt'*)
-        if [ "${DOLLAR}{__netcatty_osc7_has_hook}" -eq 0 ]; then
-          __netcatty_osc7_new+=("${DOLLAR}{__netcatty_osc7_hook}")
-          __netcatty_osc7_has_hook=1
+  __yetiterm_osc7_new=()
+  __yetiterm_osc7_has_hook=0
+  for __yetiterm_osc7_el in "${DOLLAR}{PROMPT_COMMAND[@]}"; do
+    case "${DOLLAR}{__yetiterm_osc7_el}" in
+      osc7_cwd|__netcatty_osc7_prompt|__yetiterm_osc7_prompt) continue ;;
+      *'declare -F __netcatty_osc7_prompt'*|*'declare -F __yetiterm_osc7_prompt'*)
+        if [ "${DOLLAR}{__yetiterm_osc7_has_hook}" -eq 0 ]; then
+          __yetiterm_osc7_new+=("${DOLLAR}{__yetiterm_osc7_hook}")
+          __yetiterm_osc7_has_hook=1
         fi
         ;;
-      *) __netcatty_osc7_new+=("${DOLLAR}{__netcatty_osc7_el}") ;;
+      *) __yetiterm_osc7_new+=("${DOLLAR}{__yetiterm_osc7_el}") ;;
     esac
   done
-  if [ "${DOLLAR}{__netcatty_osc7_has_hook}" -eq 0 ]; then
-    __netcatty_osc7_new+=("${DOLLAR}{__netcatty_osc7_hook}")
+  if [ "${DOLLAR}{__yetiterm_osc7_has_hook}" -eq 0 ]; then
+    __yetiterm_osc7_new+=("${DOLLAR}{__yetiterm_osc7_hook}")
   fi
-  PROMPT_COMMAND=("${DOLLAR}{__netcatty_osc7_new[@]}")
-  unset __netcatty_osc7_new __netcatty_osc7_has_hook __netcatty_osc7_el 2>/dev/null || true
+  PROMPT_COMMAND=("${DOLLAR}{__yetiterm_osc7_new[@]}")
+  unset __yetiterm_osc7_new __yetiterm_osc7_has_hook __yetiterm_osc7_el 2>/dev/null || true
 else
   if [ -n "${DOLLAR}{PROMPT_COMMAND+x}" ]; then
-    __netcatty_osc7_pc=""
-    __netcatty_osc7_sep=""
-    while IFS= read -r __netcatty_osc7_line || [ -n "${DOLLAR}{__netcatty_osc7_line}" ]; do
-      case "${DOLLAR}{__netcatty_osc7_line}" in
-        osc7_cwd|__netcatty_osc7_prompt) continue ;;
-        *'declare -F __netcatty_osc7_prompt'*) continue ;;
+    __yetiterm_osc7_pc=""
+    __yetiterm_osc7_sep=""
+    while IFS= read -r __yetiterm_osc7_line || [ -n "${DOLLAR}{__yetiterm_osc7_line}" ]; do
+      case "${DOLLAR}{__yetiterm_osc7_line}" in
+        osc7_cwd|__netcatty_osc7_prompt|__yetiterm_osc7_prompt) continue ;;
+        *'declare -F __netcatty_osc7_prompt'*|*'declare -F __yetiterm_osc7_prompt'*) continue ;;
         *)
-          __netcatty_osc7_pc="${DOLLAR}{__netcatty_osc7_pc}${DOLLAR}{__netcatty_osc7_sep}${DOLLAR}{__netcatty_osc7_line}"
-          __netcatty_osc7_sep="
+          __yetiterm_osc7_pc="${DOLLAR}{__yetiterm_osc7_pc}${DOLLAR}{__yetiterm_osc7_sep}${DOLLAR}{__yetiterm_osc7_line}"
+          __yetiterm_osc7_sep="
 "
           ;;
       esac
     done <<EOF
 ${DOLLAR}{PROMPT_COMMAND-}
 EOF
-    if [ -n "${DOLLAR}{__netcatty_osc7_pc}" ]; then
-      PROMPT_COMMAND="${DOLLAR}{__netcatty_osc7_pc}
-${DOLLAR}{__netcatty_osc7_hook}"
+    if [ -n "${DOLLAR}{__yetiterm_osc7_pc}" ]; then
+      PROMPT_COMMAND="${DOLLAR}{__yetiterm_osc7_pc}
+${DOLLAR}{__yetiterm_osc7_hook}"
     else
-      PROMPT_COMMAND="${DOLLAR}{__netcatty_osc7_hook}"
+      PROMPT_COMMAND="${DOLLAR}{__yetiterm_osc7_hook}"
     fi
-    unset __netcatty_osc7_pc __netcatty_osc7_sep __netcatty_osc7_line 2>/dev/null || true
+    unset __yetiterm_osc7_pc __yetiterm_osc7_sep __yetiterm_osc7_line 2>/dev/null || true
   else
-    PROMPT_COMMAND="${DOLLAR}{__netcatty_osc7_hook}"
+    PROMPT_COMMAND="${DOLLAR}{__yetiterm_osc7_hook}"
   fi
 fi
-unset __netcatty_osc7_hook 2>/dev/null || true
+unset __yetiterm_osc7_hook 2>/dev/null || true
 # Do not force-unexport PROMPT_COMMAND: the guarded hook is safe if inherited
 # across non-login su (declare -F fails quietly), and users may intentionally
 # export PROMPT_COMMAND for child shells.
-# <<< Netcatty OSC 7 cwd tracking <<<
-NETCATTY_OSC7_BASH
+# <<< YetiTerm OSC 7 cwd tracking <<<
+YETITERM_OSC7_BASH
       ;;
     zsh)
-      cat >> "$__netcatty_osc7_dest" <<'NETCATTY_OSC7_ZSH'
+      cat >> "$__yetiterm_osc7_dest" <<'YETITERM_OSC7_ZSH'
 
-# >>> Netcatty OSC 7 cwd tracking >>>
-# netcatty-osc7-version: 2
-__netcatty_osc7_url_path() {
+# >>> YetiTerm OSC 7 cwd tracking >>>
+# yetiterm-osc7-version: 2
+__yetiterm_osc7_url_path() {
   printf "%s" "$1" | LC_ALL=C awk '${URL_PATH_AWK_SCRIPT}'
 }
 osc7_cwd() {
-  printf '\033]7;file://%s%s\a' "${DOLLAR}{HOST:-${DOLLAR}{HOSTNAME:-localhost}}" "$(__netcatty_osc7_url_path "$PWD")"
+  printf '\033]7;file://%s%s\a' "${DOLLAR}{HOST:-${DOLLAR}{HOSTNAME:-localhost}}" "$(__yetiterm_osc7_url_path "$PWD")"
 }
-__netcatty_osc7_prompt() {
+__yetiterm_osc7_prompt() {
   if typeset -f osc7_cwd >/dev/null 2>&1; then
     osc7_cwd
   fi
 }
+__netcatty_osc7_prompt() {
+  __yetiterm_osc7_prompt
+}
 if (( ${DOLLAR}{+precmd_functions} )); then
   precmd_functions=(${DOLLAR}{precmd_functions:#osc7_cwd})
+  precmd_functions=(${DOLLAR}{precmd_functions:#__netcatty_osc7_prompt})
   case " ${DOLLAR}{precmd_functions[*]} " in
-    *" __netcatty_osc7_prompt "*) ;;
-    *) precmd_functions+=(__netcatty_osc7_prompt) ;;
+    *" __yetiterm_osc7_prompt "*) ;;
+    *) precmd_functions+=(__yetiterm_osc7_prompt) ;;
   esac
 else
-  precmd_functions=(__netcatty_osc7_prompt)
+  precmd_functions=(__yetiterm_osc7_prompt)
 fi
-# <<< Netcatty OSC 7 cwd tracking <<<
-NETCATTY_OSC7_ZSH
+# <<< YetiTerm OSC 7 cwd tracking <<<
+YETITERM_OSC7_ZSH
       ;;
     fish)
-      cat >> "$__netcatty_osc7_dest" <<'NETCATTY_OSC7_FISH'
+      cat >> "$__yetiterm_osc7_dest" <<'YETITERM_OSC7_FISH'
 
-# >>> Netcatty OSC 7 cwd tracking >>>
-# netcatty-osc7-version: 2
-function __netcatty_osc7_url_path
+# >>> YetiTerm OSC 7 cwd tracking >>>
+# yetiterm-osc7-version: 2
+function __yetiterm_osc7_url_path
     printf "%s" "$argv[1]" | LC_ALL=C awk '${URL_PATH_AWK_SCRIPT}'
 end
-function __netcatty_osc7_cwd --on-event fish_prompt
-    printf '\033]7;file://%s%s\a' (hostname 2>/dev/null; or printf localhost) (__netcatty_osc7_url_path "$PWD")
+function __yetiterm_osc7_cwd --on-event fish_prompt
+    printf '\033]7;file://%s%s\a' (hostname 2>/dev/null; or printf localhost) (__yetiterm_osc7_url_path "$PWD")
 end
-# <<< Netcatty OSC 7 cwd tracking <<<
-NETCATTY_OSC7_FISH
+function __netcatty_osc7_cwd
+    __yetiterm_osc7_cwd
+end
+# <<< YetiTerm OSC 7 cwd tracking <<<
+YETITERM_OSC7_FISH
       ;;
   esac
 }
 
 need_write=1
 # Whole-line marker presence only (not substring matches inside echo etc.).
-if awk -v start="$marker" '
+if awk -v start="$marker" -v lstart="$legacy_marker" '
   function trim(s) { sub(/^[ \t]+/, "", s); sub(/[ \t]+$/, "", s); return s }
-  trim($0) == start { found = 1; exit }
+  trim($0) == start || trim($0) == lstart { found = 1; exit }
   END { exit found ? 0 : 1 }
 ' "$config"; then
-  if netcatty_osc7_has_complete_v2_block "$config"; then
+  if yetiterm_osc7_has_complete_v2_block "$config"; then
     # At least one complete v2 block exists (even if older junk markers remain).
     need_write=0
-  elif netcatty_osc7_markers_balanced "$config"; then
+  elif yetiterm_osc7_markers_balanced "$config"; then
     # Complete balanced block without v2 (legacy). Replace the marked region
     # in place (not strip-then-append-at-EOF) so surrounding control flow such
     # as if/then/fi wrappers stay valid. Build the full file in a temp, then
     # atomically replace so read-only modes cannot lose the block without the
     # replacement.
-    __netcatty_osc7_target=$(netcatty_osc7_resolve_path "$config")
-    __netcatty_osc7_dir=$(dirname "$__netcatty_osc7_target")
-    __netcatty_osc7_mode=$(netcatty_osc7_file_mode "$__netcatty_osc7_target" || true)
-    __netcatty_osc7_owner=$(netcatty_osc7_file_owner "$__netcatty_osc7_target" || true)
+    __yetiterm_osc7_target=$(yetiterm_osc7_resolve_path "$config")
+    __yetiterm_osc7_dir=$(dirname "$__yetiterm_osc7_target")
+    __yetiterm_osc7_mode=$(yetiterm_osc7_file_mode "$__yetiterm_osc7_target" || true)
+    __yetiterm_osc7_owner=$(yetiterm_osc7_file_owner "$__yetiterm_osc7_target" || true)
     # Prefer same-dir atomic replace. If the directory is not writable
     # (managed homes), fall back to append without aborting setup.
-    __netcatty_osc7_tmp=$(mktemp "$__netcatty_osc7_dir/.netcatty-osc7.XXXXXX" 2>/dev/null || true)
-    __netcatty_osc7_snip=$(mktemp "$__netcatty_osc7_dir/.netcatty-osc7-snip.XXXXXX" 2>/dev/null || true)
-    if [ -z "${DOLLAR}{__netcatty_osc7_tmp:-}" ] || [ -z "${DOLLAR}{__netcatty_osc7_snip:-}" ]; then
-      rm -f "$__netcatty_osc7_tmp" "$__netcatty_osc7_snip" 2>/dev/null || true
+    __yetiterm_osc7_tmp=$(mktemp "$__yetiterm_osc7_dir/.yetiterm-osc7.XXXXXX" 2>/dev/null || mktemp "$__yetiterm_osc7_dir/.netcatty-osc7.XXXXXX" 2>/dev/null || true)
+    __yetiterm_osc7_snip=$(mktemp "$__yetiterm_osc7_dir/.yetiterm-osc7-snip.XXXXXX" 2>/dev/null || mktemp "$__yetiterm_osc7_dir/.netcatty-osc7-snip.XXXXXX" 2>/dev/null || true)
+    if [ -z "${DOLLAR}{__yetiterm_osc7_tmp:-}" ] || [ -z "${DOLLAR}{__yetiterm_osc7_snip:-}" ]; then
+      rm -f "$__yetiterm_osc7_tmp" "$__yetiterm_osc7_snip" 2>/dev/null || true
       need_write=1
     else
-    : > "$__netcatty_osc7_snip"
-    netcatty_osc7_append_v2 "$__netcatty_osc7_snip"
-    if awk -v start="$marker" -v end="$end_marker" -v snip="$__netcatty_osc7_snip" '
+    : > "$__yetiterm_osc7_snip"
+    yetiterm_osc7_append_v2 "$__yetiterm_osc7_snip"
+    if awk -v start="$marker" -v lstart="$legacy_marker" -v end="$end_marker" -v lend="$legacy_end_marker" -v snip="$__yetiterm_osc7_snip" '
       function trim(s) {
         sub(/^[ \t]+/, "", s)
         sub(/[ \t]+$/, "", s)
@@ -522,39 +539,39 @@ if awk -v start="$marker" '
       }
       {
         t = trim($0)
-        if (t == start) {
+        if (t == start || t == lstart) {
           while ((getline line < snip) > 0) print line
           close(snip)
           skip = 1
           next
         }
-        if (t == end) {
+        if (t == end || t == lend) {
           skip = 0
           next
         }
         if (!skip) print
       }
-    ' "$config" > "$__netcatty_osc7_tmp"
+    ' "$config" > "$__yetiterm_osc7_tmp"
     then
-      rm -f "$__netcatty_osc7_snip"
-      if [ -n "${DOLLAR}{__netcatty_osc7_mode:-}" ]; then
-        chmod "$__netcatty_osc7_mode" "$__netcatty_osc7_tmp" 2>/dev/null || true
+      rm -f "$__yetiterm_osc7_snip"
+      if [ -n "${DOLLAR}{__yetiterm_osc7_mode:-}" ]; then
+        chmod "$__yetiterm_osc7_mode" "$__yetiterm_osc7_tmp" 2>/dev/null || true
       fi
-      if [ -n "${DOLLAR}{__netcatty_osc7_owner:-}" ]; then
+      if [ -n "${DOLLAR}{__yetiterm_osc7_owner:-}" ]; then
         # If we cannot restore ownership, leave the original file untouched.
-        if ! chown "$__netcatty_osc7_owner" "$__netcatty_osc7_tmp" 2>/dev/null; then
-          rm -f "$__netcatty_osc7_tmp"
+        if ! chown "$__yetiterm_osc7_owner" "$__yetiterm_osc7_tmp" 2>/dev/null; then
+          rm -f "$__yetiterm_osc7_tmp"
           need_write=1
         else
-          mv -f "$__netcatty_osc7_tmp" "$__netcatty_osc7_target"
+          mv -f "$__yetiterm_osc7_tmp" "$__yetiterm_osc7_target"
           need_write=0
         fi
       else
-        mv -f "$__netcatty_osc7_tmp" "$__netcatty_osc7_target"
+        mv -f "$__yetiterm_osc7_tmp" "$__yetiterm_osc7_target"
         need_write=0
       fi
     else
-      rm -f "$__netcatty_osc7_tmp" "$__netcatty_osc7_snip"
+      rm -f "$__yetiterm_osc7_tmp" "$__yetiterm_osc7_snip"
       need_write=1
     fi
     fi
@@ -566,7 +583,7 @@ if awk -v start="$marker" '
 fi
 
 if [ "$need_write" = 1 ]; then
-  netcatty_osc7_append_v2 "$config"
+  yetiterm_osc7_append_v2 "$config"
 fi
 
 if [ -z "$forced_shell" ]; then
@@ -574,14 +591,14 @@ if [ -z "$forced_shell" ]; then
   printf '%s%s\n' '${OSC7_SETUP_CONFIG_MARKER}' "$config"
 fi
 host=$(hostname 2>/dev/null || printf localhost)
-printf '\033]7;file://%s%s\a' "$host" "$(__netcatty_osc7_url_path "$PWD")"`;
+printf '\033]7;file://%s%s\a' "$host" "$(__yetiterm_osc7_url_path "$PWD")"`;
 
 export const buildOsc7SetupCommand = (): string =>
-  `set +u 2>/dev/null || true; printf "%s\\n" ${quoteForSingleQuotedShellString(POSIX_SETUP_SCRIPT)} | env NETCATTY_ZDOTDIR="$ZDOTDIR" NETCATTY_XDG_CONFIG_HOME="$XDG_CONFIG_HOME" sh\n`;
+  `set +u 2>/dev/null || true; printf "%s\\n" ${quoteForSingleQuotedShellString(POSIX_SETUP_SCRIPT)} | env YETITERM_ZDOTDIR="$ZDOTDIR" NETCATTY_ZDOTDIR="$ZDOTDIR" YETITERM_XDG_CONFIG_HOME="$XDG_CONFIG_HOME" NETCATTY_XDG_CONFIG_HOME="$XDG_CONFIG_HOME" sh\n`;
 
 export const buildOsc7SetupExecCommand = (expectedCwd?: string): string => {
   const envPrefix = expectedCwd
-    ? `env NETCATTY_OSC7_EXPECTED_CWD=${quoteForSingleQuotedShellString(expectedCwd)} `
+    ? `env YETITERM_OSC7_EXPECTED_CWD=${quoteForSingleQuotedShellString(expectedCwd)} NETCATTY_OSC7_EXPECTED_CWD=${quoteForSingleQuotedShellString(expectedCwd)} `
     : "";
   return `exec ${envPrefix}sh -c ${quoteForSingleQuotedShellString(POSIX_SETUP_SCRIPT)}\n`;
 };
@@ -619,7 +636,7 @@ export const getOsc7StagedScriptSha256 = (): Promise<string> => {
 export const buildOsc7StageScriptCommand = (): string => {
   const stageScript = `set -eu
 umask 022
-file=$(mktemp /tmp/.netcatty-osc7-setup.XXXXXX)
+file=$(mktemp /tmp/.yetiterm-osc7-setup.XXXXXX 2>/dev/null || mktemp /tmp/.netcatty-osc7-setup.XXXXXX)
 printf '%s\\n' ${quoteForSingleQuotedShellString(POSIX_SETUP_SCRIPT)} > "$file"
 chmod 644 "$file"
 printf '%s%s\\n' '${OSC7_SETUP_STAGED_MARKER}' "$file"`;
@@ -640,7 +657,7 @@ const buildVerifiedStagedRunner = (contentSha256: string): string =>
   + `[ -n "$h" ] || h=$(printf "%s\\n" "$c" | shasum -a 256 2>/dev/null | cut -d" " -f1); `
   + `[ -n "$h" ] || h=$(printf "%s\\n" "$c" | openssl dgst -sha256 2>/dev/null | sed "s/^.* //"); `
   + `if [ "x$h" = "x${contentSha256}" ]; then printf "%s\\n" "$c" | sh; `
-  + `else printf "%s\\n" "Netcatty OSC 7 setup: staged script verification failed" >&2; fi`;
+  + `else printf "%s\\n" "YetiTerm OSC 7 setup: staged script verification failed" >&2; fi`;
 
 /**
  * Setup command typed into the interactive terminal itself. Used when the
@@ -663,16 +680,16 @@ export const buildOsc7TypedSetupCommand = (
   const quotedPath = quoteForSingleQuotedShellString(scriptPath);
   const quotedRunner = quoteForSingleQuotedShellString(buildVerifiedStagedRunner(contentSha256));
   if (shell === "bash") {
-    const run = `env NETCATTY_OSC7_FORCE_SHELL=bash sh -c ${quotedRunner} sh ${quotedPath}`;
+    const run = `env YETITERM_OSC7_FORCE_SHELL=bash NETCATTY_OSC7_FORCE_SHELL=bash sh -c ${quotedRunner} sh ${quotedPath}`;
     return `${run}; . "${DOLLAR}HOME/.bashrc" >/dev/null 2>&1; osc7_cwd 2>/dev/null; true; ${BASH_DELETE_MARKED_HISTORY_COMMAND}\r`;
   }
   if (shell === "zsh") {
-    const run = `env NETCATTY_OSC7_FORCE_SHELL=zsh NETCATTY_ZDOTDIR="${DOLLAR}{ZDOTDIR:-}" sh -c ${quotedRunner} sh ${quotedPath}`;
+    const run = `env YETITERM_OSC7_FORCE_SHELL=zsh NETCATTY_OSC7_FORCE_SHELL=zsh YETITERM_ZDOTDIR="${DOLLAR}{ZDOTDIR:-}" NETCATTY_ZDOTDIR="${DOLLAR}{ZDOTDIR:-}" sh -c ${quotedRunner} sh ${quotedPath}`;
     // Leading space keeps the command out of history when HIST_IGNORE_SPACE is set.
     return ` ${run}; . "${DOLLAR}{ZDOTDIR:-${DOLLAR}HOME}/.zshrc" >/dev/null 2>&1; osc7_cwd 2>/dev/null; true\r`;
   }
-  const run = `env NETCATTY_OSC7_FORCE_SHELL=fish NETCATTY_XDG_CONFIG_HOME="${DOLLAR}XDG_CONFIG_HOME" sh -c ${quotedRunner} sh ${quotedPath}`;
-  return ` ${run}; source (test -n "${DOLLAR}XDG_CONFIG_HOME"; and echo "${DOLLAR}XDG_CONFIG_HOME"; or echo "${DOLLAR}HOME/.config")/fish/config.fish >/dev/null 2>&1; __netcatty_osc7_cwd 2>/dev/null; true\r`;
+  const run = `env YETITERM_OSC7_FORCE_SHELL=fish NETCATTY_OSC7_FORCE_SHELL=fish YETITERM_XDG_CONFIG_HOME="${DOLLAR}XDG_CONFIG_HOME" NETCATTY_XDG_CONFIG_HOME="${DOLLAR}XDG_CONFIG_HOME" sh -c ${quotedRunner} sh ${quotedPath}`;
+  return ` ${run}; source (test -n "${DOLLAR}XDG_CONFIG_HOME"; and echo "${DOLLAR}XDG_CONFIG_HOME"; or echo "${DOLLAR}HOME/.config")/fish/config.fish >/dev/null 2>&1; __yetiterm_osc7_cwd 2>/dev/null; true\r`;
 };
 
 const isOsc7SetupShell = (value: string): value is Osc7SetupShell =>
@@ -730,7 +747,7 @@ export const extractOsc7SetupTerminalData = (stdout: string): string => {
 export const buildOsc7ReloadCommand = (metadata: Osc7SetupMetadata | null): string | null => {
   if (!metadata) return null;
   const sourceCommand = `source ${quoteForSingleQuotedShellString(metadata.configPath)} >/dev/null 2>&1`;
-  const emitCommand = metadata.shell === "fish" ? "__netcatty_osc7_cwd" : "osc7_cwd";
+  const emitCommand = metadata.shell === "fish" ? "__yetiterm_osc7_cwd" : "osc7_cwd";
   if (metadata.shell === "bash") {
     return `${sourceCommand}; ${emitCommand} 2>/dev/null; true; ${BASH_DELETE_MARKED_HISTORY_COMMAND}\r`;
   }
